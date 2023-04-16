@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "447766178807",
+    "project_id": "telemedisin-aadf1",
+    "storage_bucket": "telemedisin-aadf1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447766178807:android:fff7b754aa87ca6e929cf2",
+        "android_client_info": {
+          "package_name": "com.telemedisin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "447766178807-69cuv76q0mmtgnbjout6iigi48q7nr80.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.telemedisin",
+            "certificate_hash": "94a1a2076d71feaab0a6423fb7822cc5b59131f5"
+          }
+        },
+        {
+          "client_id": "447766178807-hgop4o24nacqnpmt31nhrv0s0cfggtjc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDN4-16PQoBQnF1yotSMgbzDztZ8tDYnU4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "447766178807-hgop4o24nacqnpmt31nhrv0s0cfggtjc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
