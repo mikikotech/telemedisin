@@ -112,7 +112,6 @@ const DoctorHomeScreen = ({ navigation }: Nav) => {
                         <Button.Group space={2}>
                             <Button w={55} bg={PRIMARY_RED_COLOR} _pressed={{ backgroundColor: RED_COLOR }} onPress={() => {
                                 setShowModal(false);
-                                BackHandler.exitApp()
                             }}>
                                 No
                             </Button>

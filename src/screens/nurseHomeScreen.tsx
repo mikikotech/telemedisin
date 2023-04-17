@@ -1,18 +1,36 @@
-import { Box, Center, ScrollView } from "native-base";
-import React, { useLayoutEffect, useState, useEffect } from "react";
+import { Box, Button, Center, Modal, ScrollView } from "native-base";
+import React, { useLayoutEffect, useState, useEffect, useContext } from "react";
 import PatientCard from "../components/patientCard";
-import { PRIMARY_COLOR, WHITE_COLOR } from "../utils/constant";
+import { PRIMARY_COLOR, PRIMARY_COLOR_DISABLE, PRIMARY_RED_COLOR, RED_COLOR, WHITE_COLOR } from "../utils/constant";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { NurseHomeStackParams } from "../navigations/nurseHomeStackNavigator";
 import firestore from '@react-native-firebase/firestore';
 import messaging from '@react-native-firebase/messaging';
 import { request, PERMISSIONS } from 'react-native-permissions';
+import { BackHandler } from "react-native";
+import AuthContext from "../navigations/authContext";
+import auth from '@react-native-firebase/auth';
 
 type Nav = NativeStackScreenProps<NurseHomeStackParams>;
 
 const NurseHomeScreen = ({ navigation }: Nav) => {
 
+    const { SignOut } = useContext(AuthContext);
+
     const [patientList, setPatientList] = useState<Array<any>>([])
+    const [showModal, setShowModal] = useState<boolean>(false)
+
+    useEffect(() => {
+        const backHandle = BackHandler.addEventListener(
+            'hardwareBackPress',
+            () => {
+                setShowModal(true)
+                return true
+            }
+        )
+
+        return () => backHandle.remove()
+    }, [])
 
     useEffect(() => {
 
@@ -97,6 +115,34 @@ const NurseHomeScreen = ({ navigation }: Nav) => {
                 </Box>
             </Center>
             <Box mb={50} />
+
+            {/* modal */}
+
+            <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+                <Modal.Content maxWidth="400px">
+                    {/* <Modal.CloseButton /> */}
+                    <Modal.Header _text={{ fontSize: 18 }} >Back to Login User ?</Modal.Header>
+
+                    <Modal.Footer>
+                        <Button.Group space={2}>
+                            <Button w={55} bg={PRIMARY_RED_COLOR} _pressed={{ backgroundColor: RED_COLOR }} onPress={() => {
+                                setShowModal(false);
+                            }}>
+                                No
+                            </Button>
+                            <Button w={55} bg={PRIMARY_COLOR} _pressed={{ backgroundColor: PRIMARY_COLOR_DISABLE }} onPress={async () => {
+                                setShowModal(false);
+                                await auth()
+                                    .signOut()
+                                    .then(() => SignOut());
+                            }}>
+                                Yes
+                            </Button>
+                        </Button.Group>
+                    </Modal.Footer>
+                </Modal.Content>
+            </Modal>
+
         </ScrollView>
     )
 }

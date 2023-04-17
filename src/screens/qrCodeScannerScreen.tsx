@@ -33,16 +33,49 @@ const QrCodeScannerScreen = ({ navigation, route }: Nav) => {
 
             await firestore()
                 .collection('patient')
-                .doc(route.params?.id)
-                .update({
-                    sensor_id: data[0],
+                .where('sensor_id', '==', data[0])
+                .get()
+                .then(async (val) => {
+
+                    // console.log('where docs = ', val.docs[0].id);
+
+                    if (val.empty) {
+                        await firestore()
+                            .collection('patient')
+                            .doc(route.params?.id)
+                            .update({
+                                sensor_id: data[0],
+                            })
+                            .then(() => {
+                                navigation.navigate('PatientDetail', {
+                                    id: route.params?.id
+                                })
+                            })
+                            .catch(() => { })
+                    } else {
+                        await firestore()
+                            .collection('patient')
+                            .doc(val.docs[0].id)
+                            .update({
+                                sensor_id: '',
+                            })
+                            .then(async () => {
+                                await firestore()
+                                    .collection('patient')
+                                    .doc(route.params?.id)
+                                    .update({
+                                        sensor_id: data[0],
+                                    })
+                                    .then(() => {
+                                        navigation.navigate('PatientDetail', {
+                                            id: route.params?.id
+                                        })
+                                    })
+                                    .catch(() => { })
+                            })
+                            .catch(() => { })
+                    }
                 })
-                .then(() => {
-                    navigation.navigate('PatientDetail', {
-                        id: route.params?.id
-                    })
-                })
-                .catch(() => { })
 
         } else {
             AndroidToast.toast('Wrong QRcode!')

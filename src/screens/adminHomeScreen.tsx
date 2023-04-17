@@ -1,18 +1,32 @@
-import { Box, Button, Center, Image, Pressable, Text } from "native-base";
-import React, { useContext, useEffect } from "react";
+import { Box, Button, Center, Image, Modal, Pressable, Text } from "native-base";
+import React, { useContext, useEffect, useState } from "react";
 import AdminCategories from "../components/adminCategories";
-import { ORANGE_COLOR, PRIMARY_COLOR, PURPLE_COLOR, RED_COLOR, WHITE_COLOR } from "../utils/constant";
+import { ORANGE_COLOR, PRIMARY_COLOR, PRIMARY_COLOR_DISABLE, PRIMARY_RED_COLOR, PURPLE_COLOR, RED_COLOR, WHITE_COLOR } from "../utils/constant";
 import AuthContext from "../navigations/authContext";
 import { AdminHomeStackParams } from "../navigations/adminHomeStackNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import auth from '@react-native-firebase/auth';
 import { request, PERMISSIONS } from 'react-native-permissions';
+import { BackHandler } from "react-native";
 
 type Nav = NativeStackScreenProps<AdminHomeStackParams>;
 
 const AdminHomeScreen = ({ navigation }: Nav) => {
 
     const { SignOut } = useContext(AuthContext);
+    const [showModal, setShowModal] = useState<boolean>(false)
+
+    useEffect(() => {
+        const backHandle = BackHandler.addEventListener(
+            'hardwareBackPress',
+            () => {
+                setShowModal(true)
+                return true
+            }
+        )
+
+        return () => backHandle.remove()
+    }, [])
 
     useEffect(() => {
         request(PERMISSIONS.ANDROID.CAMERA).then((result) => {
@@ -79,6 +93,34 @@ const AdminHomeScreen = ({ navigation }: Nav) => {
                     </Button>
                 </Box>
             </Center>
+
+            {/* modal */}
+
+            <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+                <Modal.Content maxWidth="400px">
+                    {/* <Modal.CloseButton /> */}
+                    <Modal.Header _text={{ fontSize: 18 }} >Back to Login User ?</Modal.Header>
+
+                    <Modal.Footer>
+                        <Button.Group space={2}>
+                            <Button w={55} bg={PRIMARY_RED_COLOR} _pressed={{ backgroundColor: RED_COLOR }} onPress={() => {
+                                setShowModal(false);
+                            }}>
+                                No
+                            </Button>
+                            <Button w={55} bg={PRIMARY_COLOR} _pressed={{ backgroundColor: PRIMARY_COLOR_DISABLE }} onPress={async () => {
+                                setShowModal(false);
+                                await auth()
+                                    .signOut()
+                                    .then(() => SignOut());
+                            }}>
+                                Yes
+                            </Button>
+                        </Button.Group>
+                    </Modal.Footer>
+                </Modal.Content>
+            </Modal>
+
         </Box>
     )
 }

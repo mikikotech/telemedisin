@@ -12,8 +12,18 @@ import { ReducerRootState } from "../redux/Reducer";
 import firestore from '@react-native-firebase/firestore';
 import AndroidToast from "../utils/AndroidToast";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { firebase } from '@react-native-firebase/database';
 
 type Nav = NativeStackScreenProps<any>;
+
+type dataProps = {
+    heartrate: number;
+    systolic: number;
+    diastolic: number;
+    oxygen: number;
+    temp: number;
+    time: number;
+};
 
 const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
@@ -24,6 +34,10 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
     const [patientList, setPatientList] = useState<any>({})
     const [isLoading, setIsloading] = useState<boolean>(true)
+
+    const [sensorData, setSensorData] = useState<Array<dataProps>>([
+        { "systolic": 0, "diastolic": 0, "heartrate": 0, "oxygen": 0, "temp": 0, "time": 61738964871 }
+    ]);
 
     useEffect(() => {
         const backHandle = BackHandler.addEventListener(
@@ -37,12 +51,37 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
         return () => backHandle.remove()
     }, [])
 
+    useEffect(() => {
+
+        if (patientList?.sensor_id != '') {
+            firebase
+                .app()
+                .database('https://telemedisin-aadf1-default-rtdb.asia-southeast1.firebasedatabase.app/')
+                .ref(`/${patientList?.sensor_id}/Sensor`)
+                .limitToLast(1)
+                .on('value', (value) => {
+                    // console.log(value.val());
+
+                    if (value.exists()) {
+                        const data = value.val();
+                        var dataArray: Array<dataProps> = [];
+                        for (let id in data) {
+                            dataArray.push(data[id]);
+                        }
+
+                        setSensorData(dataArray)
+                    }
+
+                })
+        }
+    }, [isLoading])
+
     useLayoutEffect(() => {
         const subscribe = firestore()
             .collection('patient')
             .doc(route?.params?.id)
             .onSnapshot((data) => {
-                console.log('pasien details = ', data.data());
+                // console.log('pasien details = ', data.data());
                 setPatientList(data.data())
                 setKeluhan(data.data()?.laporan_kesehatan?.keluhan)
                 setTanggapan(data.data()?.laporan_kesehatan?.tanggapan)
@@ -183,7 +222,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                                                                     <Box>
                                                                         <DataSensor
                                                                             name="Heart Rate"
-                                                                            value="68"
+                                                                            value={sensorData[0].heartrate.toString()}
                                                                             prefix="bpm"
                                                                             color={RED_COLOR}
                                                                             iconSource={require('./../assets/icons/heart-rate.png')}
@@ -199,7 +238,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
                                                                         <DataSensor
                                                                             name="Oxygen"
-                                                                            value="68"
+                                                                            value={sensorData[0].oxygen.toString()}
                                                                             prefix="%"
                                                                             color={BLUE_COLOR}
                                                                             iconSource={require('./../assets/icons/oxygen.png')}
@@ -215,7 +254,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
                                                                         <DataSensor
                                                                             name="Blood"
-                                                                            value="168/26"
+                                                                            value={`${sensorData[0].systolic.toString()}/${sensorData[0].diastolic.toString()}`}
                                                                             prefix="mmHg"
                                                                             color={PURPLE_COLOR}
                                                                             iconSource={require('./../assets/icons/blood.png')}
@@ -231,7 +270,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
                                                                         <DataSensor
                                                                             name="Body Temp"
-                                                                            value="26"
+                                                                            value={sensorData[0].temp.toString()}
                                                                             prefix="°C"
                                                                             color={PRIMARY_COLOR_DISABLE}
                                                                             iconSource={require('./../assets/icons/temp.png')}
@@ -256,7 +295,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                                                     (<Box>
                                                         <DataSensor
                                                             name="Heart Rate"
-                                                            value="68"
+                                                            value={sensorData[0].heartrate.toString()}
                                                             prefix="bpm"
                                                             color={RED_COLOR}
                                                             iconSource={require('./../assets/icons/heart-rate.png')}
@@ -272,7 +311,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
                                                         <DataSensor
                                                             name="Oxygen"
-                                                            value="68"
+                                                            value={sensorData[0].oxygen.toString()}
                                                             prefix="%"
                                                             color={BLUE_COLOR}
                                                             iconSource={require('./../assets/icons/oxygen.png')}
@@ -288,7 +327,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
                                                         <DataSensor
                                                             name="Blood"
-                                                            value="168/26"
+                                                            value={`${sensorData[0].systolic.toString()}/${sensorData[0].diastolic.toString()}`}
                                                             prefix="mmHg"
                                                             color={PURPLE_COLOR}
                                                             iconSource={require('./../assets/icons/blood.png')}
@@ -304,7 +343,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
                                                         <DataSensor
                                                             name="Body Temp"
-                                                            value="26"
+                                                            value={sensorData[0].temp.toString()}
                                                             prefix="°C"
                                                             color={PRIMARY_COLOR_DISABLE}
                                                             iconSource={require('./../assets/icons/temp.png')}

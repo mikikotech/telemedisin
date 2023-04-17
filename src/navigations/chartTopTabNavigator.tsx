@@ -1,21 +1,28 @@
-import { Box, Center, Image, Pressable, ScrollView, Text } from "native-base";
-import React, { useEffect } from "react";
-import { MaterialTopTabBarProps, createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import HeartRateChartScreen from "../screens/HeartRateChartScreen";
-import OxygenChartScreen from "../screens/OxygenChartScreen";
-import BloodChartScreen from "../screens/BloodChartScreen";
-import TempChartScreen from "../screens/TempChartScreen";
+import { Box, Center, Pressable, ScrollView, Spinner, Text } from "native-base";
+import React, { useEffect, useState } from "react";
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { ImageSourcePropType } from "react-native/types";
 import { PRIMARY_COLOR, WHITE_COLOR } from "../utils/constant";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { BackHandler } from "react-native";
+import { firebase } from '@react-native-firebase/database';
+import DataChart from "../components/dataChart";
 
+type dataProps = {
+    heartrate: number;
+    oxygen: number;
+    systolic: number;
+    diastolic: number;
+    temp: number;
+    time: number;
+};
 
 export type ChartTopTabParams = {
     HeartRate: any;
     Oxygen: any;
     Blood: any;
     Temp: any;
+    Test: any
 }
 const Tab = createMaterialTopTabNavigator<ChartTopTabParams>();
 
@@ -117,24 +124,261 @@ const ChartTopTabNavigator = ({ route, navigation }: Nav) => {
         return () => backHandle.remove()
     }, [])
 
+    const [heartRate, setHeartRate] = useState<Array<number>>([0, 0, 0, 0, 0, 0]);
+    const [oxygen, setOxygen] = useState<Array<number>>([0, 0, 0, 0, 0, 0]);
+    const [systolic, setSystolic] = useState<Array<number>>([0, 0, 0, 0, 0, 0]);
+    const [daistolic, setDiastolic] = useState<Array<number>>([0, 0, 0, 0, 0, 0]);
+    const [temp, setTemp] = useState<Array<number>>([0, 0, 0, 0, 0, 0]);
+    const [time, setTime] = useState<Array<string>>([
+        '00:00',
+        '00:00',
+        '00:00',
+        '00:00',
+        '00:00',
+        '00:00',
+    ]);
+
+    const [isLoading, setIsloading] = useState<boolean>(true)
+
+    useEffect(() => {
+
+        const retData = firebase
+            .app()
+            .database('https://telemedisin-aadf1-default-rtdb.asia-southeast1.firebasedatabase.app/')
+            .ref(`/${route.params?.id}/Sensor`)
+            .limitToLast(6)
+            .on('value', snapshot => {
+
+                if (snapshot.val() != null) {
+
+                    const data = snapshot.val();
+                    var dataArray: Array<dataProps> = [];
+                    for (let id in data) {
+                        dataArray.push(data[id]);
+                    }
+
+                    var heartRateArray: Array<number> = [];
+                    var oxygenArray: Array<number> = [];
+                    var systolicArray: Array<number> = [];
+                    var diastolicArray: Array<number> = [];
+                    var tempArray: Array<number> = [];
+                    var timeArray: Array<string> = [];
+
+                    for (let id in dataArray) {
+                        heartRateArray.push(dataArray[id]?.heartrate);
+                        oxygenArray.push(dataArray[id]?.oxygen);
+                        systolicArray.push(dataArray[id]?.systolic);
+                        diastolicArray.push(dataArray[id]?.diastolic);
+                        tempArray.push(dataArray[id]?.temp);
+
+                        var epoch = dataArray[id].time * 1000;
+                        timeArray.push(
+                            new Date(epoch).toLocaleTimeString('en-GB', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                            }),
+                        );
+                    }
+
+                    setHeartRate(oldVal => {
+                        const copy = [...oldVal];
+
+                        heartRateArray.map((val, i) => {
+                            copy[i] = val;
+                        });
+
+                        return copy;
+                    });
+
+                    setOxygen(oldVal => {
+                        const copy = [...oldVal];
+
+                        oxygenArray.map((val, i) => {
+                            copy[i] = val;
+                        });
+
+                        return copy;
+                    });
+
+                    setSystolic(oldVal => {
+                        const copy = [...oldVal];
+
+                        systolicArray.map((val, i) => {
+                            copy[i] = val;
+                        });
+
+                        return copy;
+                    });
+
+                    setDiastolic(oldVal => {
+                        const copy = [...oldVal];
+
+                        diastolicArray.map((val, i) => {
+                            copy[i] = val;
+                        });
+
+                        return copy;
+                    });
+
+                    setTemp(oldVal => {
+                        const copy = [...oldVal];
+
+                        tempArray.map((val, i) => {
+                            copy[i] = val;
+                        });
+
+                        return copy;
+                    });
+
+
+                    setTime(oldVal => {
+                        const copy = [...oldVal];
+
+                        timeArray.map((val, i) => {
+                            copy[i] = val;
+                        });
+
+                        return copy;
+                    });
+
+                    setIsloading(false)
+                }
+
+            })
+
+        return () => firebase.app().database('https://telemedisin-aadf1-default-rtdb.asia-southeast1.firebasedatabase.app/').ref(`/${route.params?.id}/Sensor`).off('value', retData)
+    }, []);
+
+    const HeartRateChart = () => {
+        return (
+            <Box
+                bg={WHITE_COLOR}
+                w='100%'
+                h='100%'
+                px={5}
+            >
+                <Text ml={4} mb={50} mt={10} fontSize={20} >Grafik Heart Rate</Text>
+                <Center>
+                    <DataChart
+                        key={1}
+                        labels={time}
+                        datasets={heartRate}
+                        legend="Heart Rate"
+                        suffix="bpm"
+                    />
+                </Center>
+            </Box>
+        )
+    }
+
+    const OxygenChart = () => {
+        return (
+            <Box
+                bg={WHITE_COLOR}
+                w='100%'
+                h='100%'
+                px={5}
+            >
+                <Text ml={4} mb={50} mt={10} fontSize={20} >Grafik Oxygen</Text>
+                <Center>
+                    <DataChart
+                        key={2}
+                        labels={time}
+                        datasets={oxygen}
+                        legend="Oxygen"
+                        suffix="%"
+                    />
+                </Center>
+            </Box>
+        )
+    }
+
+    const BloodChart = () => {
+        return (
+
+            <Box
+                bg={WHITE_COLOR}
+                w='100%'
+                h='100%'
+                px={5}
+            >
+                <Text ml={4} mb={5} mt={5} fontSize={20} >Grafik Blood</Text>
+                <Center>
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                    >
+                        <DataChart
+                            key={3}
+                            labels={time}
+                            datasets={systolic}
+                            legend="Systolic (mmHg)"
+                            suffix=""
+                        />
+
+                        <DataChart
+                            key={4}
+                            labels={time}
+                            datasets={daistolic}
+                            legend="Diastolic (mmHg)"
+                            suffix=""
+                        />
+
+                        <Box mt={100} />
+                    </ScrollView>
+                </Center>
+            </Box>
+
+        )
+    }
+
+    const TempChart = () => {
+        return (
+            <Box
+                bg={WHITE_COLOR}
+                w='100%'
+                h='100%'
+                px={5}
+            >
+                <Text ml={4} mb={50} mt={10} fontSize={20} >Grafik Temperature</Text>
+                <Center>
+                    <DataChart
+                        key={5}
+                        labels={time}
+                        datasets={temp}
+                        legend="Temperature"
+                        suffix="°C"
+                    />
+                </Center>
+            </Box>
+        )
+    }
+
     return (
-        <Tab.Navigator
-            tabBar={props => <MyTabBar {...props} />}
-            initialRouteName={route?.params?.initialRouteName ?? 'HeartRate'}
-        >
-            <Tab.Screen name='HeartRate' initialParams={{
-                id: route?.params?.id ?? '',
-            }} component={HeartRateChartScreen} />
-            <Tab.Screen name='Oxygen' initialParams={{
-                id: route?.params?.id ?? '',
-            }} component={OxygenChartScreen} />
-            <Tab.Screen name='Blood' initialParams={{
-                id: route?.params?.id ?? '',
-            }} component={BloodChartScreen} />
-            <Tab.Screen name='Temp' initialParams={{
-                id: route?.params?.id ?? '',
-            }} component={TempChartScreen} />
-        </Tab.Navigator>
+        isLoading ?
+            (
+                <Box w='100%' h='100%' bg={WHITE_COLOR} alignItems={'center'} justifyContent={'center'}>
+                    <Spinner size='lg' color={PRIMARY_COLOR} />
+                </Box>
+            ) :
+            (
+                <Tab.Navigator
+                    tabBar={props => <MyTabBar {...props} />}
+                    initialRouteName={route?.params?.initialRouteName ?? 'HeartRate'}
+                >
+                    <Tab.Screen name='HeartRate' initialParams={{
+                        id: route?.params?.id ?? '',
+                    }} component={HeartRateChart} />
+                    <Tab.Screen name='Oxygen' initialParams={{
+                        id: route?.params?.id ?? '',
+                    }} component={OxygenChart} />
+                    <Tab.Screen name='Blood' initialParams={{
+                        id: route?.params?.id ?? '',
+                    }} component={BloodChart} />
+                    <Tab.Screen name='Temp' initialParams={{
+                        id: route?.params?.id ?? '',
+                    }} component={TempChart} />
+                </Tab.Navigator>
+            )
     )
 }
 

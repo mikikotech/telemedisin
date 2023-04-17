@@ -14,10 +14,13 @@ interface Props {
     isInvalid?: boolean,
     isRequired?: boolean,
     errorMessage?: string
-    onBlur?: (e: any) => void
+    onBlur?: (e: any) => void,
+    ref?: (e: any) => void,
+    returnKeyType?: 'next' | 'done',
+    onSubmitEditing?: () => void
 }
 
-const TextInput = ({ label, placeholder, type, value, h, onChangeText, inputRightElement, keyboardType, isInvalid, isRequired, errorMessage, onBlur }: Props) => {
+const TextInput = ({ label, placeholder, type, value, h, onChangeText, inputRightElement, keyboardType, isInvalid, isRequired, errorMessage, onBlur, ref, returnKeyType, onSubmitEditing }: Props) => {
     return (
         <FormControl
             isRequired={isRequired}
@@ -37,6 +40,7 @@ const TextInput = ({ label, placeholder, type, value, h, onChangeText, inputRigh
                 }}
             >
                 <Input
+                    ref={ref}
                     width={290}
                     height={h}
                     type={type}
@@ -52,6 +56,8 @@ const TextInput = ({ label, placeholder, type, value, h, onChangeText, inputRigh
                         bg: WHITE_COLOR
                     }}
                     onBlur={onBlur}
+                    returnKeyType={returnKeyType}
+                    onSubmitEditing={onSubmitEditing}
                 />
             </Box>
 
