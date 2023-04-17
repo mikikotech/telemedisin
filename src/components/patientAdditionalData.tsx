@@ -4,7 +4,6 @@ import { PRIMARY_COLOR, PRIMARY_COLOR_DISABLE, PRIMARY_RED_COLOR, RED_COLOR, WHI
 import { useSelector } from "react-redux";
 import { ReducerRootState } from "../redux/Reducer";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { ImageSourcePropType } from "react-native";
 
 interface Props {
     nama: string,
