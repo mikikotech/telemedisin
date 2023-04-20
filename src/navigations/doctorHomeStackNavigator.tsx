@@ -10,12 +10,14 @@ import { FONT_INACTIVE, PRIMARY_COLOR, WHITE_COLOR } from '../utils/constant';
 import AuthContext from './authContext';
 import AnimatedTrantitions from '../screens/animatedTrantitions';
 import auth from '@react-native-firebase/auth';
+import ChartTopTabNavigator from './chartTopTabNavigator';
 
 export type DoctorHomeStackParams = {
     Home: any;
     PatientDetail: any;
     PatientAddionalDetail: any;
     DataSend: any;
+    Chart: any;
     Trantitions: any;
 };
 
@@ -106,6 +108,9 @@ const DoctorHomeStackNavigator = ({ route }: Nav) => {
             })} />
             <Stack.Screen name='PatientAddionalDetail' component={PatientAdditionalDataScreen} options={(navigation) => ({
                 title: 'Data Pasien',
+            })} />
+            <Stack.Screen name='Chart' component={ChartTopTabNavigator} options={(navigation) => ({
+                headerShown: false
             })} />
             <Stack.Screen name='Trantitions' component={AnimatedTrantitions} options={(navigation) => ({
                 headerShown: false

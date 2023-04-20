@@ -144,7 +144,7 @@ const ChartTopTabNavigator = ({ route, navigation }: Nav) => {
 
         const retData = firebase
             .app()
-            .database('https://telemedisin-aadf1-default-rtdb.asia-southeast1.firebasedatabase.app/')
+            .database('https://telemedisin-7d0e9-default-rtdb.firebaseio.com/')
             .ref(`/${route.params?.id}/Sensor`)
             .limitToLast(6)
             .on('value', snapshot => {
@@ -246,7 +246,7 @@ const ChartTopTabNavigator = ({ route, navigation }: Nav) => {
 
             })
 
-        return () => firebase.app().database('https://telemedisin-aadf1-default-rtdb.asia-southeast1.firebasedatabase.app/').ref(`/${route.params?.id}/Sensor`).off('value', retData)
+        return () => firebase.app().database('https://telemedisin-7d0e9-default-rtdb.firebaseio.com/').ref(`/${route.params?.id}/Sensor`).off('value', retData)
     }, []);
 
     const HeartRateChart = () => {
@@ -261,8 +261,8 @@ const ChartTopTabNavigator = ({ route, navigation }: Nav) => {
                 <Center>
                     <DataChart
                         key={1}
-                        labels={time}
-                        datasets={heartRate}
+                        labels={time.reverse()}
+                        datasets={heartRate.reverse()}
                         legend="Heart Rate"
                         suffix="bpm"
                     />
@@ -283,8 +283,8 @@ const ChartTopTabNavigator = ({ route, navigation }: Nav) => {
                 <Center>
                     <DataChart
                         key={2}
-                        labels={time}
-                        datasets={oxygen}
+                        labels={time.reverse()}
+                        datasets={oxygen.reverse()}
                         legend="Oxygen"
                         suffix="%"
                     />
@@ -309,16 +309,16 @@ const ChartTopTabNavigator = ({ route, navigation }: Nav) => {
                     >
                         <DataChart
                             key={3}
-                            labels={time}
-                            datasets={systolic}
+                            labels={time.reverse()}
+                            datasets={systolic.reverse()}
                             legend="Systolic (mmHg)"
                             suffix=""
                         />
 
                         <DataChart
                             key={4}
-                            labels={time}
-                            datasets={daistolic}
+                            labels={time.reverse()}
+                            datasets={daistolic.reverse()}
                             legend="Diastolic (mmHg)"
                             suffix=""
                         />
@@ -343,8 +343,8 @@ const ChartTopTabNavigator = ({ route, navigation }: Nav) => {
                 <Center>
                     <DataChart
                         key={5}
-                        labels={time}
-                        datasets={temp}
+                        labels={time.reverse()}
+                        datasets={temp.reverse()}
                         legend="Temperature"
                         suffix="°C"
                     />

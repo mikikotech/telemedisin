@@ -1,41 +1,70 @@
 {
   "project_info": {
-    "project_number": "447766178807",
-    "project_id": "telemedisin-aadf1",
-    "storage_bucket": "telemedisin-aadf1.appspot.com"
+    "project_number": "222921231260",
+    "project_id": "telemedisin-7d0e9",
+    "storage_bucket": "telemedisin-7d0e9.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:447766178807:android:fff7b754aa87ca6e929cf2",
+        "mobilesdk_app_id": "1:222921231260:android:1ff93bc0ca02e4dd135659",
         "android_client_info": {
           "package_name": "com.telemedisin"
         }
       },
       "oauth_client": [
         {
-          "client_id": "447766178807-69cuv76q0mmtgnbjout6iigi48q7nr80.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.telemedisin",
-            "certificate_hash": "94a1a2076d71feaab0a6423fb7822cc5b59131f5"
-          }
-        },
-        {
-          "client_id": "447766178807-hgop4o24nacqnpmt31nhrv0s0cfggtjc.apps.googleusercontent.com",
+          "client_id": "222921231260-a7462vvcllsn73v97926tf42f008np4h.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDN4-16PQoBQnF1yotSMgbzDztZ8tDYnU4"
+          "current_key": "AIzaSyBBj4JU43tdcdGRTl-wEuf_i0yao_BCsVQ"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "447766178807-hgop4o24nacqnpmt31nhrv0s0cfggtjc.apps.googleusercontent.com",
+              "client_id": "222921231260-a7462vvcllsn73v97926tf42f008np4h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222921231260:android:d3aa7a5dc771a9b6135659",
+        "android_client_info": {
+          "package_name": "com.wecare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "222921231260-v8c07css6ss8tqg3p2bk6mch6rqtcu6d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wecare",
+            "certificate_hash": "94a1a2076d71feaab0a6423fb7822cc5b59131f5"
+          }
+        },
+        {
+          "client_id": "222921231260-a7462vvcllsn73v97926tf42f008np4h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBj4JU43tdcdGRTl-wEuf_i0yao_BCsVQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "222921231260-a7462vvcllsn73v97926tf42f008np4h.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

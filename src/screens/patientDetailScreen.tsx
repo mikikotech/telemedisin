@@ -56,7 +56,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
         if (patientList?.sensor_id != '') {
             firebase
                 .app()
-                .database('https://telemedisin-aadf1-default-rtdb.asia-southeast1.firebasedatabase.app/')
+                .database('https://telemedisin-7d0e9-default-rtdb.firebaseio.com/')
                 .ref(`/${patientList?.sensor_id}/Sensor`)
                 .limitToLast(1)
                 .on('value', (value) => {
@@ -74,7 +74,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
                 })
         }
-    }, [isLoading])
+    }, [patientList])
 
     useLayoutEffect(() => {
         const subscribe = firestore()
@@ -157,7 +157,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                                             onPressEdit={() => navigation.navigate("EditPatientDetail", { id: patientList?.id, })}
                                             nama={patientList?.name}
                                             umur={patientList?.age}
-                                            alamat={patientList?.age}
+                                            alamat={patientList?.address}
                                             pekerjaan={patientList?.job}
                                             keluhan={patientList?.keluhan}
                                             diagnosa={patientList?.diagnosa}
@@ -174,7 +174,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                                                 onPress={() => navigation.navigate("PatientAddionalDetail", { id: patientList?.id, })}
                                                 nama={patientList?.name}
                                                 umur={patientList?.age}
-                                                alamat={patientList?.age}
+                                                alamat={patientList?.address}
                                                 pekerjaan={patientList?.job}
                                                 keluhan={patientList?.keluhan}
                                                 diagnosa={patientList?.diagnosa}
