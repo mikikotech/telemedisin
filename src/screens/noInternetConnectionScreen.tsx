@@ -1,8 +1,14 @@
 import { Box, Text } from "native-base";
-import React from "react";
+import React, { useEffect } from "react";
 import { WHITE_COLOR } from "../utils/constant";
+import SplashScreen from "react-native-splash-screen";
 
 const NoInternetConnectionScreen = () => {
+
+    useEffect(() => {
+        SplashScreen.hide()
+    }, [])
+
     return (
         <Box
             width='100%'
