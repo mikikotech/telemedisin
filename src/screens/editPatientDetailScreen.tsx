@@ -3,7 +3,6 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 import { PRIMARY_COLOR, PRIMARY_COLOR_DISABLE, PRIMARY_RED_COLOR, WHITE_COLOR } from "../utils/constant";
 import TextInput from "../components/textInput";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { AdminHomeStackParams } from "../navigations/adminHomeStackNavigator";
 import firestore from '@react-native-firebase/firestore';
 import AndroidToast from "../utils/AndroidToast";
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker'
@@ -12,7 +11,7 @@ import uuid from 'react-native-uuid';
 import storage from '@react-native-firebase/storage';
 import { BackHandler } from "react-native";
 
-type Nav = NativeStackScreenProps<AdminHomeStackParams>;
+type Nav = NativeStackScreenProps<any>;
 
 const EditPatientDetailScreen = ({ navigation, route }: Nav) => {
 
@@ -59,8 +58,6 @@ const EditPatientDetailScreen = ({ navigation, route }: Nav) => {
                         setUri(callback?.assets[0]?.uri ?? '')
                     }
                 }
-
-
             })
     }
 
@@ -244,7 +241,9 @@ const EditPatientDetailScreen = ({ navigation, route }: Nav) => {
                                 type="text"
                                 value={id}
                                 keyboardType="numeric"
-                                onChangeText={(val) => { setId(val) }}
+                                onChangeText={(val) => {
+                                    // setId(val) 
+                                }}
                                 h={55}
                             />
 

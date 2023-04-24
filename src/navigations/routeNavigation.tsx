@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useDispatch, useSelector } from 'react-redux';
 import { ActionType } from "../redux/ActionType";
 import AuthContext, { AuthContextData } from "./authContext";
@@ -16,13 +16,16 @@ import firestore from '@react-native-firebase/firestore';
 import SplashScreen from 'react-native-splash-screen'
 import { LogBox } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from "@react-native-community/netinfo";
 import PushNotification, { Importance } from "react-native-push-notification";
+import NoInternetConnectionScreen from "../screens/noInternetConnectionScreen";
 
 export type RouteNavigationParams = {
     Auth: any;
     DoctorHome: any;
     NurseHome: any;
     AdminHome: any;
+    NoInternet: any;
 }
 
 const Stack = createNativeStackNavigator<RouteNavigationParams>();
@@ -34,6 +37,8 @@ const RouteNavigation = () => {
     const state = useSelector((state: ReducerRootState) => state)
 
     const dispatch = useDispatch()
+
+    const [isConnected, setIsConnected] = useState<boolean | null>(true)
 
     const Auth = useMemo(
         () => ({
@@ -184,7 +189,11 @@ const RouteNavigation = () => {
 
         // return () => subscribe()
 
-        return () => { }
+        const unsubscribe = NetInfo.addEventListener(state => {
+            setIsConnected(state.isConnected)
+        });
+
+        return () => unsubscribe();
 
     }, [])
 
@@ -194,13 +203,15 @@ const RouteNavigation = () => {
                 <NavigationContainer>
                     <Stack.Navigator screenOptions={{ headerShown: false }} >
 
-                        {state.auth.role == '' ?
+                        {state.auth.role == '' && isConnected == true ?
                             (<Stack.Screen name="Auth" component={AuthStackNavigator} />) :
-                            state.auth.role == 'doctor' ?
+                            state.auth.role == 'doctor' && isConnected == true ?
                                 (<Stack.Screen name="DoctorHome" component={DoctorHomeStackNavigator} />) :
-                                state.auth.role == 'nurse' ?
+                                state.auth.role == 'nurse' && isConnected == true ?
                                     (<Stack.Screen name="NurseHome" component={NurseHomeStackNavigator} />) :
-                                    (<Stack.Screen name="AdminHome" component={AdminHomeStackNavigator} />)
+                                    state.auth.role == 'admin' && isConnected == true ?
+                                        (<Stack.Screen name="AdminHome" component={AdminHomeStackNavigator} />) :
+                                        (<Stack.Screen name="NoInternet" component={NoInternetConnectionScreen} />)
                         }
 
                     </Stack.Navigator>

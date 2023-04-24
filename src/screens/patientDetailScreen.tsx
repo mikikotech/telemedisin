@@ -46,7 +46,11 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
         const backHandle = BackHandler.addEventListener(
             'hardwareBackPress',
             () => {
-                navigation.navigate('Home')
+                if (state.role == 'admin') {
+                    navigation.navigate('PatientList')
+                } else {
+                    navigation.navigate('Home')
+                }
                 return true
             }
         )

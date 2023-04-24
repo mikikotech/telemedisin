@@ -6,7 +6,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AdminHomeStackParams } from "../navigations/adminHomeStackNavigator";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import firestore from '@react-native-firebase/firestore';
-import { LogBox } from "react-native";
+import { BackHandler, LogBox } from "react-native";
 import AndroidToast from "../utils/AndroidToast";
 
 type Nav = NativeStackScreenProps<AdminHomeStackParams>;
@@ -14,6 +14,18 @@ type Nav = NativeStackScreenProps<AdminHomeStackParams>;
 const PatientListScreen = ({ navigation }: Nav) => {
 
     const [patientList, setPatientList] = useState<Array<any>>([])
+
+    useEffect(() => {
+        const backHandle = BackHandler.addEventListener(
+            'hardwareBackPress',
+            () => {
+                navigation.navigate('Home')
+                return true
+            }
+        )
+
+        return () => backHandle.remove()
+    }, [])
 
     useLayoutEffect(() => {
         const subscribe = firestore()

@@ -12,6 +12,7 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import uuid from 'react-native-uuid';
 import storage from '@react-native-firebase/storage';
+import PatientDetails from "../components/patientDetails";
 
 type Nav = NativeStackScreenProps<AdminHomeStackParams>;
 
@@ -28,6 +29,7 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
     const [submit, setSubmit] = useState<boolean>(false)
 
     const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [newUserModel, setNewUserModal] = useState<boolean>(false);
 
     useEffect(() => {
         const backHandle = BackHandler.addEventListener(
@@ -92,59 +94,50 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
 
     const createPatientHandle = async () => {
 
-        if (id != '' && name != '' && age != '' && address != '' && job != '' && keluhan != '' && diagnosa != '') {
+        setSubmit(true)
 
-            if (uri != 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png') {
-                setSubmit(true)
+        const fileExt = uri.split('.').pop()
+        const fileName = `${uuid.v4()}.${fileExt}`
 
-                const fileExt = uri.split('.').pop()
-                const fileName = `${uuid.v4()}.${fileExt}`
+        const reference = storage().ref(`patient.photo/${fileName}`);
 
-                const reference = storage().ref(`patient.photo/${fileName}`);
+        const task = reference.putFile(uri)
 
-                const task = reference.putFile(uri)
+        await task.on('state_changed', async (onSnapshot) => {
 
-                await task.on('state_changed', async (onSnapshot) => {
+            const url = await storage().ref(`patient.photo/${fileName}`).getDownloadURL();
 
-                    const url = await storage().ref(`patient.photo/${fileName}`).getDownloadURL();
+            if (onSnapshot.state == 'success') {
+                await firestore()
+                    .collection('patient')
+                    .doc(id)
+                    .set({
+                        id: id,
+                        name: name,
+                        age: age,
+                        address: address,
+                        job: job,
+                        uri: url,
+                        data_tambahan: [],
+                        keluhan: keluhan,
+                        diagnosa: diagnosa,
+                        sensor_id: '',
+                        laporan_kesehatan: {
+                            keluhan: '',
+                            tanggapan: ''
+                        }
+                    })
+                    .then(() => {
+                        navigation.replace("Trantitions", {
+                            type: 'acc',
+                            screen: 'PatientList'
+                        })
 
-                    if (onSnapshot.state == 'success') {
-                        await firestore()
-                            .collection('patient')
-                            .doc(id)
-                            .set({
-                                id: id,
-                                name: name,
-                                age: age,
-                                address: address,
-                                job: job,
-                                uri: url,
-                                data_tambahan: [],
-                                keluhan: keluhan,
-                                diagnosa: diagnosa,
-                                sensor_id: '',
-                                laporan_kesehatan: {
-                                    keluhan: '',
-                                    tanggapan: ''
-                                }
-                            })
-                            .then(() => {
-                                navigation.replace("Trantitions", {
-                                    type: 'acc',
-                                    screen: 'PatientList'
-                                })
-
-                                setSubmit(false)
-                            })
-                            .catch(() => { })
-                    }
-                })
-            } else {
-                AndroidToast.toast("Patient photo can't be empty!")
+                        setSubmit(false)
+                    })
+                    .catch(() => { })
             }
-        } else {
-            AndroidToast.toast("Text field can't be empty!")
-        }
+        })
     }
 
     return (
@@ -264,7 +257,17 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
                     isLoading={submit}
                     isLoadingText="Submitting"
                     onPress={() => {
-                        createPatientHandle()
+
+                        if (id != '' && name != '' && age != '' && address != '' && job != '' && keluhan != '' && diagnosa != '') {
+
+                            if (uri != 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png') {
+                                setNewUserModal(true)
+                            } else {
+                                AndroidToast.toast("Patient photo can't be empty!")
+                            }
+                        } else {
+                            AndroidToast.toast("Text field can't be empty!")
+                        }
                     }}
                     bg={PRIMARY_COLOR}
                     width={290}
@@ -318,6 +321,176 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
                             />
                         </HStack>
                     </Modal.Body>
+                </Modal.Content>
+            </Modal>
+
+
+            {/* modal new pasient */}
+
+            <Modal isOpen={newUserModel} onClose={() => setNewUserModal(false)} safeAreaTop={true} size="lg">
+                <Modal.Content>
+                    <Modal.CloseButton />
+                    <Modal.Header>New Patient</Modal.Header>
+                    <Modal.Body>
+                        <Center>
+                            <Box
+                                bg={WHITE_COLOR}
+                                px={25}
+                                py={17}
+                                w={250}
+                                style={{
+                                    elevation: 10,
+                                    shadowColor: '#8a8a8a',
+                                }}
+                                borderRadius={10}
+                            >
+                                <VStack>
+                                    <HStack alignItems={'center'} justifyContent={'space-between'} >
+                                        <HStack>
+                                            <Avatar bg="indigo.500" alignSelf="center" size="lg" source={{
+                                                uri: uri
+                                            }}
+                                                mr={5} >{id}</Avatar>
+                                            <VStack>
+                                                <Text fontSize={20} maxW={130} numberOfLines={1} lineBreakMode="tail" color='#515A50' fontWeight={'bold'} >{name}</Text>
+                                                <Text fontSize={15} maxW={100} numberOfLines={1} lineBreakMode="tail" color='#6B6B6B'>patient {id}</Text>
+                                            </VStack>
+                                        </HStack>
+                                    </HStack>
+
+                                    {/* nama lengkap */}
+                                    <>
+                                        <Text
+                                            mt={9}
+                                            color='#C6C6C6'
+                                            fontSize={17}
+                                            numberOfLines={2}
+                                            lineBreakMode="tail"
+                                        >
+                                            Nama Lengkap : {' '}
+                                            <Text
+                                                color='#515A50'
+                                                fontSize={17}
+                                            >
+                                                {name}
+                                            </Text>
+                                        </Text>
+                                    </>
+
+                                    {/* umur */}
+                                    <>
+                                        <Text
+                                            mt={2}
+                                            color='#C6C6C6'
+                                            fontSize={17}
+                                            numberOfLines={1}
+                                            lineBreakMode="tail"
+                                        >
+                                            Umur : {' '}
+                                            <Text
+                                                color='#515A50'
+                                                fontSize={17}
+                                            >
+                                                {age} Tahun
+                                            </Text>
+                                        </Text>
+                                    </>
+
+                                    {/* alamat */}
+                                    <>
+                                        <Text
+                                            mt={2}
+                                            color='#C6C6C6'
+                                            fontSize={17}
+                                            numberOfLines={2}
+                                            lineBreakMode="tail"
+                                        >
+                                            Alamat : {' '}
+                                            <Text
+                                                color='#515A50'
+                                                fontSize={17}
+                                            >
+                                                {address}
+                                            </Text>
+                                        </Text>
+                                    </>
+
+                                    {/* pekerjaan */}
+                                    <>
+                                        <Text
+                                            mt={2}
+                                            color='#C6C6C6'
+                                            fontSize={17}
+                                            numberOfLines={1}
+                                            lineBreakMode="tail"
+                                        >
+                                            Pekerjaan : {' '}
+                                            <Text
+                                                color='#515A50'
+                                                fontSize={17}
+                                            >
+                                                {job}
+                                            </Text>
+                                        </Text>
+                                    </>
+
+                                    {/* keluhan */}
+                                    <>
+                                        <Text
+                                            mt={2}
+                                            color='#C6C6C6'
+                                            fontSize={17}
+                                            numberOfLines={1}
+                                            lineBreakMode="tail"
+                                        >
+                                            Keluhan : {' '}
+                                            <Text
+                                                color='#515A50'
+                                                fontSize={17}
+                                            >
+                                                {keluhan}
+                                            </Text>
+                                        </Text>
+                                    </>
+
+                                    {/* diagnosa */}
+                                    <>
+                                        <Text
+                                            mt={2}
+                                            color='#C6C6C6'
+                                            fontSize={17}
+                                            numberOfLines={1}
+                                            lineBreakMode="tail"
+                                        >
+                                            Diagnosa : {' '}
+                                            <Text
+                                                color='#515A50'
+                                                fontSize={17}
+                                            >
+                                                {diagnosa}
+                                            </Text>
+                                        </Text>
+                                    </>
+
+                                </VStack>
+                            </Box>
+                        </Center>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button.Group space={2}>
+                            <Button w={75} bg={PRIMARY_RED_COLOR} _pressed={{ backgroundColor: RED_COLOR }} onPress={() => {
+                                setNewUserModal(false);
+                            }}>
+                                Edit
+                            </Button>
+                            <Button w={75} bg={PRIMARY_COLOR} _pressed={{ backgroundColor: PRIMARY_COLOR_DISABLE }} onPress={async () => {
+                                setNewUserModal(false);
+                                createPatientHandle()
+                            }}>
+                                Save
+                            </Button>
+                        </Button.Group>
+                    </Modal.Footer>
                 </Modal.Content>
             </Modal>
 

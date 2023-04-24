@@ -43,7 +43,7 @@ const EditPatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
         const backHandle = BackHandler.addEventListener(
             'hardwareBackPress',
             () => {
-                navigation.navigate('PatientDetail')
+                navigation.navigate('PatientAddionalDetail')
                 return true
             }
         )
@@ -98,7 +98,7 @@ const EditPatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
             </HStack>
             <Center mt={29} >
                 <Box>
-                    <TextInput h={65} label={`Data 1`} value={data} onChangeText={(val) => { setData(val) }} placeholder="data" type="text" />
+                    <TextInput h={65} label={`Data`} value={data} onChangeText={(val) => { setData(val) }} placeholder="data" type="text" />
                     <Box mb={2} />
                     <TextInput h={122} label='Keterangan' value={value} onChangeText={(val) => { setValue(val) }} placeholder="keterangan" type="text" />
                     <Box mb={38} />

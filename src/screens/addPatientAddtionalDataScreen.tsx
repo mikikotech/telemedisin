@@ -6,6 +6,7 @@ import LoginButton from "../components/loginButton";
 import { BackHandler, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import firestore from '@react-native-firebase/firestore';
+import AndroidToast from "../utils/AndroidToast";
 
 type Nav = NativeStackScreenProps<any>;
 
@@ -61,6 +62,8 @@ const AddPatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
                     })
                 })
                 .catch(() => { })
+        } else {
+            AndroidToast.toast("Text field can't be empty!")
         }
     }
 
@@ -87,7 +90,7 @@ const AddPatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
                 <Box>
                     <Text fontSize={20} color='#515A50' fontWeight={'bold'} mb={23} >Masukan Data</Text>
                     <View key={1} >
-                        <TextInput h={65} label={'Data 1'} value={data} onChangeText={(val) => {
+                        <TextInput h={65} label={'Data'} value={data} onChangeText={(val) => {
                             setData(val)
                         }} placeholder="data" type="text" />
                         <Box mb={2} />
