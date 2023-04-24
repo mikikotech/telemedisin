@@ -31,6 +31,10 @@ const AdminHomeScreen = ({ navigation }: Nav) => {
     useEffect(() => {
         request(PERMISSIONS.ANDROID.CAMERA).then((result) => {
             console.log(result)
+
+            request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE).then((result) => {
+                console.log(result)
+            });
         });
 
         return () => { }

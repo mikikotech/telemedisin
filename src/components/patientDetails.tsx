@@ -176,13 +176,9 @@ const PatientDetails = ({ nama, umur, alamat, pekerjaan, keluhan, diagnosa, pang
                     </Text>
                 </>
 
-                {
-                    state.role == 'doctor' || state.role == 'nurse' ? (
-                        <Button variant={"unstyled"} mt={5} onPress={onPress} >
-                            <Text fontSize={20} color={PRIMARY_COLOR} fontWeight={'bold'} >Data Tambahan Pasien</Text>
-                        </Button>
-                    ) : <></>
-                }
+                <Button variant={"unstyled"} mt={5} onPress={onPress} >
+                    <Text fontSize={20} color={PRIMARY_COLOR} fontWeight={'bold'} >{state.role == 'admin' ? 'Download Data Pasien' : 'Data Tambahan Pasien'}</Text>
+                </Button>
 
             </VStack>
         </Box>

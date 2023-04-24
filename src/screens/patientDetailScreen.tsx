@@ -13,6 +13,9 @@ import firestore from '@react-native-firebase/firestore';
 import AndroidToast from "../utils/AndroidToast";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { firebase } from '@react-native-firebase/database';
+import Share from 'react-native-share';
+var XLSX = require("xlsx");
+var RNFS = require('react-native-fs');
 
 type Nav = NativeStackScreenProps<any>;
 
@@ -92,6 +95,95 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
         return () => subscribe()
     }, [])
 
+    const downloadPatientData = async () => {
+
+        firebase
+            .app()
+            .database('https://telemedisin-7d0e9-default-rtdb.firebaseio.com/')
+            .ref(`/${patientList?.sensor_id}/Sensor`)
+            .once('value')
+            .then(res => {
+                const data = res.val();
+                var dataArray: Array<any> = [];
+                var dataNumber: number = 0
+
+                for (let id in data) {
+                    var epoch = data[id].time * 1000;
+                    dataNumber += 1
+
+                    dataArray.push({
+                        No: dataNumber,
+                        HeartRate: `${data[id].heartrate} bpm`,
+                        Oxygen: `${data[id].oxygen} %`,
+                        Blood: `${data[id].diastolic}/${data[id].systolic} mmHg`,
+                        Temperature: `${data[id].temp} °C`,
+                        Time: new Date(epoch).toLocaleString('en-GB'),
+                    });
+                }
+
+                var data_tambahan: string = '';
+
+                if (patientList?.data_tambahan.length > 0) {
+                    patientList?.data_tambahan.map((data: any, i: any) => {
+                        data_tambahan = data_tambahan + data.data + ' = ' + data.value + '\n'
+                    })
+                }
+
+                // console.log('user data tambahan = ', data_tambahan);
+
+                let patinet_data_to_export: Array<object> = [{
+                    No: 1,
+                    ID: patientList?.id,
+                    Nama: patientList?.name,
+                    Umur: patientList?.age,
+                    Alamat: patientList?.address,
+                    Pekerjaan: patientList?.job,
+                    Keluhan: patientList?.keluhan,
+                    Diagnosa: patientList?.diagnosa,
+                    "Laporan Keluhan": patientList?.laporan_kesehatan?.keluhan,
+                    "Laporan Tanggapan": patientList?.laporan_kesehatan?.tanggapan,
+                    "Data Tambahan": data_tambahan
+                }]
+
+                // console.log(patinet_data_to_export);
+
+
+                var wb = XLSX.utils.book_new();
+                var sheet1 = XLSX.utils.json_to_sheet(patinet_data_to_export);
+                var sheet2 = XLSX.utils.json_to_sheet(dataArray);
+                XLSX.utils.book_append_sheet(wb, sheet1, 'Data Pasien', true);
+                XLSX.utils.book_append_sheet(wb, sheet2, 'Data Sensor', true);
+
+                const wbout = XLSX.write(wb, {
+                    type: 'binary',
+                    bookType: 'xlsx',
+                });
+
+                RNFS.writeFile(
+                    `${RNFS.DownloadDirectoryPath}/${patientList.name}_${patientList.id}.xlsx`,
+                    wbout,
+                    'ascii',
+                )
+                    .then((r: any) => {
+                        console.log('Success', r);
+                        AndroidToast.toast('Done Downloading');
+                        Share.open({
+                            message: 'Data Pasien',
+                            url: `file://${RNFS.DownloadDirectoryPath}/${patientList.name}_${patientList.id}.xlsx`
+                        })
+                            .then((res: any) => {
+
+                            })
+                            .catch((e: any) => { })
+                    })
+                    .catch((e: any) => {
+                        console.log('Error', e);
+                        AndroidToast.toast('Failed Downloading');
+                    });
+            })
+
+    }
+
     const commentHandle = async () => {
 
         if (keluhan != '' || tanggapan != '') {
@@ -164,6 +256,9 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                                             panggilan={patientList?.name}
                                             id={patientList?.id}
                                             uri={patientList?.uri}
+                                            onPress={() => {
+                                                downloadPatientData()
+                                            }}
                                         />
 
                                         <Box mb={58} />
