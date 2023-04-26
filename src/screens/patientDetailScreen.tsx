@@ -1,4 +1,4 @@
-import { Box, Center, HStack, Icon, ScrollView, Spinner, Text, TextArea } from "native-base";
+import { Box, Center, HStack, Icon, Radio, ScrollView, Spinner, Text, TextArea, VStack } from "native-base";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { BackHandler } from "react-native";
 import { BLUE_COLOR, FONT_ACTIVE, PRIMARY_COLOR, PRIMARY_COLOR_DISABLE, PURPLE_COLOR, RED_COLOR, WHITE_COLOR } from "../utils/constant";
@@ -14,6 +14,7 @@ import AndroidToast from "../utils/AndroidToast";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { firebase } from '@react-native-firebase/database';
 import Share from 'react-native-share';
+import { DataTable } from 'react-native-paper';
 var XLSX = require("xlsx");
 var RNFS = require('react-native-fs');
 
@@ -32,8 +33,11 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
     const state = useSelector((state: ReducerRootState) => state.auth)
 
+    const [idKesehatan, setIdKesehatan] = useState<string>("")
     const [keluhan, setKeluhan] = useState<string>("")
     const [tanggapan, setTanggapan] = useState<string>("")
+    const [statusKesehatan, setStatusKesehatan] = useState<string>("")
+    const [laporanKesehatan, setLaporanKesehatan] = useState<Array<any>>([])
 
     const [patientList, setPatientList] = useState<any>({})
     const [isLoading, setIsloading] = useState<boolean>(true)
@@ -88,10 +92,28 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
             .collection('patient')
             .doc(route?.params?.id)
             .onSnapshot((data) => {
-                // console.log('pasien details = ', data.data());
+                console.log('pasien details = ', data.data()?.laporan_kesehatan);
                 setPatientList(data.data())
-                setKeluhan(data.data()?.laporan_kesehatan?.keluhan)
-                setTanggapan(data.data()?.laporan_kesehatan?.tanggapan)
+
+                var _laporanKesehatan: Array<any> = data.data()?.laporan_kesehatan
+
+                console.log(_laporanKesehatan[_laporanKesehatan.length - 1]?.id);
+
+
+                if (_laporanKesehatan[_laporanKesehatan.length - 1].status == 'selesai') {
+                    setLaporanKesehatan(data.data()?.laporan_kesehatan)
+
+                    setKeluhan('')
+                    setTanggapan('')
+                    setStatusKesehatan('')
+                } else {
+                    setLaporanKesehatan(data.data()?.laporan_kesehatan)
+
+                    setIdKesehatan(_laporanKesehatan[_laporanKesehatan.length - 1]?.id ?? '')
+                    setKeluhan(_laporanKesehatan[_laporanKesehatan.length - 1]?.keluhan ?? '')
+                    setTanggapan(_laporanKesehatan[_laporanKesehatan.length - 1]?.tanggapan ?? '')
+                    setStatusKesehatan(_laporanKesehatan[_laporanKesehatan.length - 1]?.status ?? '')
+                }
 
                 setIsloading(false)
             })
@@ -133,7 +155,23 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                     })
                 }
 
-                // console.log('user data tambahan = ', data_tambahan);
+                var _laporanKesehatan: Array<any> = [];
+
+                laporanKesehatan.map((val, i) => {
+
+                    var epoch = val.id * 1000;
+
+                    _laporanKesehatan.push({
+                        No: i + 1,
+                        Keluhan: val.keluhan,
+                        Tanggapan: val.tanggapan,
+                        Status: val.status,
+                        Time: new Date(epoch).toLocaleString('en-GB'),
+                    });
+                })
+
+                console.log('laporan = ', _laporanKesehatan);
+
 
                 let patinet_data_to_export: Array<object> = [{
                     No: 1,
@@ -144,8 +182,6 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                     Pekerjaan: patientList?.job,
                     Keluhan: patientList?.keluhan,
                     Diagnosa: patientList?.diagnosa,
-                    "Laporan Keluhan": patientList?.laporan_kesehatan?.keluhan,
-                    "Laporan Tanggapan": patientList?.laporan_kesehatan?.tanggapan,
                     "Data Tambahan": data_tambahan
                 }]
 
@@ -154,9 +190,11 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
                 var wb = XLSX.utils.book_new();
                 var sheet1 = XLSX.utils.json_to_sheet(patinet_data_to_export);
-                var sheet2 = XLSX.utils.json_to_sheet(dataArray);
+                var sheet2 = XLSX.utils.json_to_sheet(_laporanKesehatan);
+                var sheet3 = XLSX.utils.json_to_sheet(dataArray);
                 XLSX.utils.book_append_sheet(wb, sheet1, 'Data Pasien', true);
-                XLSX.utils.book_append_sheet(wb, sheet2, 'Data Sensor', true);
+                XLSX.utils.book_append_sheet(wb, sheet2, 'Laporan Kesehatan', true);
+                XLSX.utils.book_append_sheet(wb, sheet3, 'Data Sensor', true);
 
                 const wbout = XLSX.write(wb, {
                     type: 'binary',
@@ -190,14 +228,22 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
     const commentHandle = async () => {
 
+        var _laporanKesehatan: Array<any> = laporanKesehatan
+
         if (keluhan != '' || tanggapan != '') {
             const db = await firestore()
                 .collection('patient')
                 .doc(patientList?.id)
 
-            if (state.role == 'nurse') {
+            if (state.role == 'nurse' && tanggapan == '' && statusKesehatan == '' || statusKesehatan == 'progress') {
                 db.update({
-                    "laporan_kesehatan.keluhan": `${keluhan}`,
+                    // "laporan_kesehatan.keluhan": `${keluhan}`,
+                    laporan_kesehatan: firestore.FieldValue.arrayUnion({
+                        id: new Date().getTime(),
+                        keluhan: keluhan,
+                        tanggapan: '',
+                        status: ''
+                    })
                 })
                     .then(() => {
                         navigation.replace('Trantitions', {
@@ -206,9 +252,27 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                             id: patientList?.id
                         })
                     });
-            } else {
+            } else if (state.role == 'nurse' && statusKesehatan == 'selesai') {
+
+                _laporanKesehatan[_laporanKesehatan.length - 1].status = 'selesai'
+
                 db.update({
-                    "laporan_kesehatan.tanggapan": `${tanggapan}`,
+                    laporan_kesehatan: _laporanKesehatan
+                })
+                    .then(() => {
+                        navigation.replace('Trantitions', {
+                            type: 'comment',
+                            screen: 'PatientDetail',
+                            id: patientList?.id
+                        })
+                    });
+            } else if (state.role == 'doctor' && tanggapan != '') {
+
+                _laporanKesehatan[_laporanKesehatan.length - 1].tanggapan = tanggapan
+                _laporanKesehatan[_laporanKesehatan.length - 1].status = 'progress'
+
+                db.update({
+                    laporan_kesehatan: _laporanKesehatan
                 })
                     .then(() => {
                         navigation.replace('Trantitions', {
@@ -265,7 +329,29 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                                             }}
                                         />
 
-                                        <Box mb={58} />
+                                        <Box mb={18} />
+
+                                        <DataTable style={{ padding: 15, width: 290, borderWidth: 1, borderRadius: 10 }} >
+                                            <DataTable.Header style={{ backgroundColor: PRIMARY_COLOR_DISABLE }} >
+                                                <DataTable.Title>No</DataTable.Title>
+                                                <DataTable.Title>keluhan</DataTable.Title>
+                                                <DataTable.Title>Tanggapan</DataTable.Title>
+                                                <DataTable.Title>status</DataTable.Title>
+                                            </DataTable.Header>
+
+                                            {
+                                                laporanKesehatan.map((val, i) => {
+                                                    return (
+                                                        <DataTable.Row>
+                                                            <DataTable.Cell>{i + 1}</DataTable.Cell>
+                                                            <DataTable.Cell>{val.keluhan}</DataTable.Cell>
+                                                            <DataTable.Cell>{val.tanggapan}</DataTable.Cell>
+                                                            <DataTable.Cell>{val.status}</DataTable.Cell>
+                                                        </DataTable.Row>
+                                                    )
+                                                })
+                                            }
+                                        </DataTable>
                                     </>) :
                                     (
                                         <>
@@ -491,20 +577,52 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                                                     shadowColor: '#52006A',
                                                 }}
                                             >
-                                                <TextArea
-                                                    autoCompleteType={null}
-                                                    p={3}
-                                                    width={290}
-                                                    height={290}
-                                                    placeholder={'tanggapan'}
-                                                    value={tanggapan}
-                                                    onChangeText={(val) => {
-                                                        state.role == 'doctor' ? setTanggapan(val) : null
-                                                    }}
-                                                    fontSize={16}
-                                                    color='#C6C6C6'
-                                                    borderWidth={0}
-                                                />
+                                                <VStack>
+                                                    <TextArea
+                                                        autoCompleteType={null}
+                                                        p={3}
+                                                        width={290}
+                                                        height={290}
+                                                        placeholder={'tanggapan'}
+                                                        value={tanggapan}
+                                                        onChangeText={(val) => {
+
+                                                            if (state.role == 'doctor' && keluhan == '') {
+                                                                AndroidToast.toast('Belum ada keluhan!')
+                                                            } else if (state.role == 'doctor' && keluhan != '') {
+                                                                setTanggapan(val)
+                                                            }
+                                                            // state.role == 'doctor' ? setTanggapan(val) : null
+                                                        }}
+                                                        fontSize={16}
+                                                        color='#C6C6C6'
+                                                        borderWidth={0}
+                                                    />
+                                                    {
+                                                        state.role == 'nurse' && statusKesehatan != '' ?
+                                                            (
+                                                                <>
+                                                                    <Radio.Group name="myRadioGroup"
+                                                                        value={statusKesehatan}
+                                                                        onChange={nextValue => {
+                                                                            setStatusKesehatan(nextValue)
+                                                                        }}>
+                                                                        <HStack >
+                                                                            <Box ml={7} />
+                                                                            <Radio colorScheme="emerald" value="progress" my={1}>
+                                                                                On Progress
+                                                                            </Radio>
+                                                                            <Box ml={10} />
+                                                                            <Radio colorScheme="emerald" value="selesai" my={1}>
+                                                                                Selesai
+                                                                            </Radio>
+                                                                        </HStack>
+                                                                    </Radio.Group>
+                                                                    <Box mt={3} />
+                                                                </>
+                                                            ) : null
+                                                    }
+                                                </VStack>
                                             </Box>
 
                                             <Box mb={35} />

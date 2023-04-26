@@ -122,10 +122,7 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
                         keluhan: keluhan,
                         diagnosa: diagnosa,
                         sensor_id: '',
-                        laporan_kesehatan: {
-                            keluhan: '',
-                            tanggapan: ''
-                        }
+                        laporan_kesehatan: []
                     })
                     .then(() => {
                         navigation.replace("Trantitions", {
