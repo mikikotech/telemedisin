@@ -14,10 +14,12 @@ import EditPatientDetailScreen from '../screens/editPatientDetailScreen';
 import CreatePatientScreen from '../screens/createPatientScreen';
 import AnimatedTrantitions from '../screens/animatedTrantitions';
 import auth from '@react-native-firebase/auth';
+import PatientReportScreen from '../screens/patientReportScreen';
 
 export type AdminHomeStackParams = {
     Home: any;
     PatientDetail: any;
+    PatientReport: any;
     EditPatientDetail: any;
     Trantitions: any;
     DataSend: any;
@@ -145,6 +147,19 @@ const AdminHomeStackNavigator = () => {
                         onPress={() => { navigation.navigation.navigate('PatientList') }}
                     />
                 ),
+            })} />
+            <Stack.Screen name='PatientReport' component={PatientReportScreen} options={(navigation) => ({
+                title: 'Pasien Report',
+                headerLeft: () => (
+                    <Icon
+                        as={MaterialCommunityIcons}
+                        name={'chevron-left'}
+                        size={8}
+                        color={PRIMARY_COLOR}
+                        onPress={() => { navigation.navigation.navigate('PatientDetail') }}
+                    />
+                ),
+                orientation: 'landscape',
             })} />
             <Stack.Screen name='EditPatientDetail' component={EditPatientDetailScreen} options={(navigation) => ({
                 title: 'Edit Profile',

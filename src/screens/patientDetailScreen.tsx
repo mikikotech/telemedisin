@@ -1,4 +1,4 @@
-import { Box, Center, HStack, Icon, Radio, ScrollView, Spinner, Text, TextArea, VStack } from "native-base";
+import { Box, Button, Center, HStack, Icon, Radio, ScrollView, Spinner, Text, TextArea, VStack } from "native-base";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { BackHandler } from "react-native";
 import { BLUE_COLOR, FONT_ACTIVE, PRIMARY_COLOR, PRIMARY_COLOR_DISABLE, PURPLE_COLOR, RED_COLOR, WHITE_COLOR } from "../utils/constant";
@@ -14,7 +14,6 @@ import AndroidToast from "../utils/AndroidToast";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { firebase } from '@react-native-firebase/database';
 import Share from 'react-native-share';
-import { DataTable } from 'react-native-paper';
 var XLSX = require("xlsx");
 var RNFS = require('react-native-fs');
 
@@ -235,9 +234,8 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                 .collection('patient')
                 .doc(patientList?.id)
 
-            if (state.role == 'nurse' && tanggapan == '' && statusKesehatan == '' || statusKesehatan == 'progress') {
+            if (state.role == 'nurse' && tanggapan == '' && statusKesehatan == '' && laporanKesehatan[laporanKesehatan.length - 1]?.id != idKesehatan) {
                 db.update({
-                    // "laporan_kesehatan.keluhan": `${keluhan}`,
                     laporan_kesehatan: firestore.FieldValue.arrayUnion({
                         id: new Date().getTime(),
                         keluhan: keluhan,
@@ -252,7 +250,33 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                             id: patientList?.id
                         })
                     });
-            } else if (state.role == 'nurse' && statusKesehatan == 'selesai') {
+                console.log('1');
+
+            } else if (state.role == 'nurse' && statusKesehatan == '' && laporanKesehatan[laporanKesehatan.length - 1]?.id == idKesehatan) {
+
+                const updateData = laporanKesehatan.findIndex(obj => obj.id == idKesehatan)
+
+                laporanKesehatan[updateData].keluhan = keluhan
+
+                db.set({
+                    laporan_kesehatan: laporanKesehatan
+                },
+                    { merge: true }
+                )
+                    .then(() => {
+                        navigation.replace('Trantitions', {
+                            type: 'comment',
+                            screen: 'PatientDetail',
+                            id: patientList?.id
+                        })
+                    });
+                console.log('2');
+            } else if (state.role == 'nurse' && tanggapan != '' && statusKesehatan == 'progress') {
+                AndroidToast.toast("Pilih selesai menanggapi")
+
+                console.log('3');
+            }
+            else if (state.role == 'nurse' && statusKesehatan == 'selesai') {
 
                 _laporanKesehatan[_laporanKesehatan.length - 1].status = 'selesai'
 
@@ -331,27 +355,17 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
                                         <Box mb={18} />
 
-                                        <DataTable style={{ padding: 15, width: 290, borderWidth: 1, borderRadius: 10 }} >
-                                            <DataTable.Header style={{ backgroundColor: PRIMARY_COLOR_DISABLE }} >
-                                                <DataTable.Title>No</DataTable.Title>
-                                                <DataTable.Title>keluhan</DataTable.Title>
-                                                <DataTable.Title>Tanggapan</DataTable.Title>
-                                                <DataTable.Title>status</DataTable.Title>
-                                            </DataTable.Header>
+                                        <LoginButton
+                                            onPress={() => {
+                                                navigation.navigate('PatientReport', { id: patientList?.id })
+                                            }}
+                                            name="Patient Report"
+                                            bgcolor={PRIMARY_COLOR}
+                                            txtcolor={WHITE_COLOR}
+                                            variant="solid"
+                                        />
 
-                                            {
-                                                laporanKesehatan.map((val, i) => {
-                                                    return (
-                                                        <DataTable.Row>
-                                                            <DataTable.Cell>{i + 1}</DataTable.Cell>
-                                                            <DataTable.Cell>{val.keluhan}</DataTable.Cell>
-                                                            <DataTable.Cell>{val.tanggapan}</DataTable.Cell>
-                                                            <DataTable.Cell>{val.status}</DataTable.Cell>
-                                                        </DataTable.Row>
-                                                    )
-                                                })
-                                            }
-                                        </DataTable>
+
                                     </>) :
                                     (
                                         <>
