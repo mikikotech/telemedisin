@@ -1,6 +1,6 @@
 import { Avatar, Box, Button, HStack, Image, Pressable, Text, VStack } from "native-base";
 import React from "react";
-import { PRIMARY_COLOR, PRIMARY_COLOR_DISABLE, WHITE_COLOR } from "../utils/constant";
+import { PRIMARY_COLOR, PRIMARY_COLOR_DISABLE, RED_COLOR, WHITE_COLOR } from "../utils/constant";
 import { useSelector } from "react-redux";
 import { ReducerRootState } from "../redux/Reducer";
 
@@ -48,16 +48,16 @@ const PatientDetails = ({ nama, umur, alamat, pekerjaan, keluhan, diagnosa, pang
                         </VStack>
                     </HStack>
                     {
-                        state.role == 'admin' ?
+                        state.role == 'admin' || state.role == 'patient' || state.role == 'nurse' ?
                             (<Pressable
                                 onPress={onPressEdit}
                                 h={37}
                                 w={37}
                                 borderRadius={5}
-                                bg={PRIMARY_COLOR_DISABLE}
+                                bg={state.role == 'nurse' ? RED_COLOR : PRIMARY_COLOR_DISABLE}
                                 justifyContent={'center'} alignItems={'center'}
                             >
-                                <Image alt="iamge" source={require('./../assets/icons/edit.png')} w={5} h={5} />
+                                <Image alt="iamge" source={state.role == 'nurse' ? require('./../assets/icons/doctor.png') : require('./../assets/icons/edit.png')} w={5} h={5} />
                             </Pressable>) : <></>
                     }
                 </HStack>
@@ -71,7 +71,7 @@ const PatientDetails = ({ nama, umur, alamat, pekerjaan, keluhan, diagnosa, pang
                         numberOfLines={2}
                         lineBreakMode="tail"
                     >
-                        Nama Lengkap : {' '}
+                        Full Name : {' '}
                         <Text
                             color='#515A50'
                             fontSize={17}
@@ -90,12 +90,12 @@ const PatientDetails = ({ nama, umur, alamat, pekerjaan, keluhan, diagnosa, pang
                         numberOfLines={1}
                         lineBreakMode="tail"
                     >
-                        Umur : {' '}
+                        age : {' '}
                         <Text
                             color='#515A50'
                             fontSize={17}
                         >
-                            {umur} Tahun
+                            {umur} Years
                         </Text>
                     </Text>
                 </>
@@ -109,7 +109,7 @@ const PatientDetails = ({ nama, umur, alamat, pekerjaan, keluhan, diagnosa, pang
                         numberOfLines={2}
                         lineBreakMode="tail"
                     >
-                        Alamat : {' '}
+                        Address : {' '}
                         <Text
                             color='#515A50'
                             fontSize={17}
@@ -128,7 +128,7 @@ const PatientDetails = ({ nama, umur, alamat, pekerjaan, keluhan, diagnosa, pang
                         numberOfLines={1}
                         lineBreakMode="tail"
                     >
-                        Pekerjaan : {' '}
+                        Job : {' '}
                         <Text
                             color='#515A50'
                             fontSize={17}
@@ -147,7 +147,7 @@ const PatientDetails = ({ nama, umur, alamat, pekerjaan, keluhan, diagnosa, pang
                         numberOfLines={1}
                         lineBreakMode="tail"
                     >
-                        Keluhan : {' '}
+                        Complaint : {' '}
                         <Text
                             color='#515A50'
                             fontSize={17}
@@ -166,7 +166,7 @@ const PatientDetails = ({ nama, umur, alamat, pekerjaan, keluhan, diagnosa, pang
                         numberOfLines={1}
                         lineBreakMode="tail"
                     >
-                        Diagnosa : {' '}
+                        Diagnosis : {' '}
                         <Text
                             color='#515A50'
                             fontSize={17}
@@ -177,7 +177,7 @@ const PatientDetails = ({ nama, umur, alamat, pekerjaan, keluhan, diagnosa, pang
                 </>
 
                 <Button variant={"unstyled"} mt={5} onPress={onPress} >
-                    <Text fontSize={20} color={PRIMARY_COLOR} fontWeight={'bold'} >{state.role == 'admin' ? 'Download Data Pasien' : 'Data Tambahan Pasien'}</Text>
+                    <Text fontSize={20} color={PRIMARY_COLOR} fontWeight={'bold'} >{state.role == 'admin' ? 'Download Patient Data' : state.role == 'nurse' ? 'Patient Additional Data' : 'Additional Data'}</Text>
                 </Button>
 
             </VStack>

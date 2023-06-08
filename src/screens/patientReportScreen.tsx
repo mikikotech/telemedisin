@@ -1,7 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Box, ScrollView, Text } from "native-base";
 import React, { useEffect, useLayoutEffect, useState } from "react";
-import { DataTable } from "react-native-paper";
 import firestore from '@react-native-firebase/firestore';
 import { BackHandler } from "react-native";
 import { useSelector } from "react-redux";
@@ -37,13 +36,12 @@ const PatientReportScreen = ({ navigation, route }: Nav) => {
             .onSnapshot((data) => {
                 var _laporanKesehatan: Array<any> = data.data()?.laporan_kesehatan
 
-                console.log(_laporanKesehatan[_laporanKesehatan.length - 1]?.id);
-
-
-                if (_laporanKesehatan[_laporanKesehatan.length - 1].status == 'selesai') {
-                    setLaporanKesehatan(data.data()?.laporan_kesehatan)
-                } else {
-                    setLaporanKesehatan(data.data()?.laporan_kesehatan)
+                if (_laporanKesehatan != undefined) {
+                    if (_laporanKesehatan[_laporanKesehatan.length - 1]?.status == 'selesai') {
+                        setLaporanKesehatan(data.data()?.laporan_kesehatan)
+                    } else {
+                        setLaporanKesehatan(data.data()?.laporan_kesehatan)
+                    }
                 }
             })
     }, [])
@@ -97,7 +95,7 @@ const PatientReportScreen = ({ navigation, route }: Nav) => {
                     </Col>
                     <Col style={{ width: 220 }}>
                         <Row style={{ borderBottomWidth: 1, borderRightWidth: 1, height: 65, justifyContent: 'center', alignItems: 'center', backgroundColor: PRIMARY_COLOR_DISABLE }}>
-                            <Text>Keluhan</Text>
+                            <Text>Complaint</Text>
                         </Row>
 
                         {laporanKesehatan.map((val, i) => {
@@ -115,7 +113,7 @@ const PatientReportScreen = ({ navigation, route }: Nav) => {
                     </Col>
                     <Col style={{ width: 270 }} >
                         <Row style={{ borderBottomWidth: 1, borderRightWidth: 1, height: 65, justifyContent: 'center', alignItems: 'center', backgroundColor: PRIMARY_COLOR_DISABLE }}>
-                            <Text>Tanggapan</Text>
+                            <Text>Respone</Text>
                         </Row>
 
                         {laporanKesehatan.map((val, i) => {
@@ -139,7 +137,7 @@ const PatientReportScreen = ({ navigation, route }: Nav) => {
                         {laporanKesehatan.map((val, i) => {
                             return (
                                 <Row style={{ borderBottomWidth: 1, borderLeftWidth: 1, alignItems: 'center' }}>
-                                    <Text ml={5}>{val.status}</Text>
+                                    <Text ml={5}>{val.status == 'selesai' ? 'Done' : val.status}</Text>
                                 </Row>
                             )
                         })

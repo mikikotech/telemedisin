@@ -6,10 +6,14 @@ import LoginButton from "../components/loginButton";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import firestore from '@react-native-firebase/firestore';
 import { BackHandler } from "react-native";
+import { useSelector } from "react-redux";
+import { ReducerRootState } from "../redux/Reducer";
 
 type Nav = NativeStackScreenProps<any>
 
 const EditPatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
+
+    const state = useSelector((state: ReducerRootState) => state.auth)
 
     const [dataId, setDataId] = useState<string>('')
     const [data, setData] = useState<string>('')
@@ -93,14 +97,14 @@ const EditPatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
                 </Avatar>
                 <VStack>
                     <Text fontSize={15} color='#515A50' fontWeight={'bold'} >{name}</Text>
-                    <Text fontSize={12} color='#6B6B6B' >patient {id}</Text>
+                    <Text fontSize={12} color='#6B6B6B' maxW={40} numberOfLines={1}  >patient {id}</Text>
                 </VStack>
             </HStack>
             <Center mt={29} >
                 <Box>
                     <TextInput h={65} label={`Data`} value={data} onChangeText={(val) => { setData(val) }} placeholder="data" type="text" />
                     <Box mb={2} />
-                    <TextInput h={122} label='Keterangan' value={value} onChangeText={(val) => { setValue(val) }} placeholder="keterangan" type="text" />
+                    <TextInput h={122} label='Description' value={value} onChangeText={(val) => { setValue(val) }} placeholder="description" type="text" />
                     <Box mb={38} />
                     <LoginButton bgcolor={WHITE_COLOR} name="Save" onPress={() => {
                         editDataHandle()

@@ -31,7 +31,8 @@ const DataSensor = ({ name, value, prefix, iconSource, color, onPress }: Props) 
                 <VStack>
                     <Text fontSize={24} fontWeight={"bold"} >{name}</Text>
                     <HStack alignItems={'center'} justifyContent={'center'} mt={28}>
-                        <Text maxWidth={155} numberOfLines={2} lineHeight={prefix == 'mmHg' ? 45 : null} fontSize={prefix == 'mmHg' ? 40 : 55} >{value} <Text fontSize={25}>{prefix}</Text></Text>
+                        {/* prefix == 'mmHg' ? 40 : 55 */}
+                        <Text maxWidth={155} numberOfLines={2} lineHeight={prefix == 'mmHg' ? 45 : null} fontSize={prefix == 'mmHg' ? 40 : value.length >= 3 && prefix == 'bpm' ? 30 : 55} >{value} <Text fontSize={25}>{prefix}</Text></Text>
                         <Image alt='image' ml={prefix == 'mmHg' ? 19 : prefix == '%' ? 65 : prefix == '°C' ? 55 : 35} w={20} h={20} resizeMode="contain" source={iconSource} />
                     </HStack>
                 </VStack>

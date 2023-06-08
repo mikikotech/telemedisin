@@ -10,10 +10,14 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import uuid from 'react-native-uuid';
 import storage from '@react-native-firebase/storage';
 import { BackHandler } from "react-native";
+import { useSelector } from "react-redux";
+import { ReducerRootState } from "../redux/Reducer";
 
 type Nav = NativeStackScreenProps<any>;
 
 const EditPatientDetailScreen = ({ navigation, route }: Nav) => {
+
+    const state = useSelector((state: ReducerRootState) => state.auth)
 
     const [id, setId] = useState<string>('')
     const [name, setName] = useState<string>('')
@@ -32,7 +36,7 @@ const EditPatientDetailScreen = ({ navigation, route }: Nav) => {
         const backHandle = BackHandler.addEventListener(
             'hardwareBackPress',
             () => {
-                navigation.navigate('PatientDetail')
+                state.role == 'patient' ? navigation.navigate('Home') : navigation.navigate('PatientDetail')
                 return true
             }
         )
@@ -120,10 +124,18 @@ const EditPatientDetailScreen = ({ navigation, route }: Nav) => {
                                 diagnosa: diagnosa,
                             })
                             .then(() => {
-                                navigation.replace("Trantitions", {
-                                    type: 'editdata',
-                                    screen: 'PatientList'
-                                })
+
+                                if (state.role == 'patient') {
+                                    navigation.replace("Trantitions", {
+                                        type: 'editdata',
+                                        screen: 'Home'
+                                    })
+                                } else {
+                                    navigation.replace("Trantitions", {
+                                        type: 'editdata',
+                                        screen: 'PatientList'
+                                    })
+                                }
 
                                 setSubmit(false)
                             })
@@ -145,11 +157,18 @@ const EditPatientDetailScreen = ({ navigation, route }: Nav) => {
                     })
                     .then(() => {
 
-                        navigation.replace("Trantitions", {
-                            type: 'accountPatient',
-                            screen: 'PatientList',
-                            id: route.params?.id,
-                        })
+                        if (state.role == 'patient') {
+                            navigation.replace("Trantitions", {
+                                type: 'editdata',
+                                screen: 'Home'
+                            })
+                        } else {
+                            navigation.replace("Trantitions", {
+                                type: 'accountPatient',
+                                screen: 'PatientList',
+                                id: route.params?.id,
+                            })
+                        }
                     })
                     .catch(() => { })
             }
@@ -285,8 +304,8 @@ const EditPatientDetailScreen = ({ navigation, route }: Nav) => {
                             />
 
                             <TextInput
-                                label='Keluhan'
-                                placeholder="keluhan"
+                                label='Complaint'
+                                placeholder="complaint"
                                 type="text"
                                 value={keluhan}
                                 h={65}
@@ -294,8 +313,8 @@ const EditPatientDetailScreen = ({ navigation, route }: Nav) => {
                             />
 
                             <TextInput
-                                label='Diagnosa'
-                                placeholder="diagnosa"
+                                label='Diagnosis'
+                                placeholder="diagnosis"
                                 type="text"
                                 value={diagnosa}
                                 h={65}

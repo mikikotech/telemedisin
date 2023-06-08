@@ -125,7 +125,7 @@ const AdminHomeStackNavigator = () => {
                 ),
             })} />
             <Stack.Screen name='PatientList' component={PatientListScreen} options={(navigation) => ({
-                title: 'Data Pasien',
+                title: 'Patient Data',
                 headerLeft: () => (
                     <Icon
                         as={MaterialCommunityIcons}
@@ -137,7 +137,7 @@ const AdminHomeStackNavigator = () => {
                 ),
             })} />
             <Stack.Screen name='PatientDetail' component={PatientDetailScreen} options={(navigation) => ({
-                title: 'Data Pasien',
+                title: 'Patient Data',
                 headerLeft: () => (
                     <Icon
                         as={MaterialCommunityIcons}

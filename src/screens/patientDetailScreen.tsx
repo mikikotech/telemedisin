@@ -37,6 +37,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
     const [tanggapan, setTanggapan] = useState<string>("")
     const [statusKesehatan, setStatusKesehatan] = useState<string>("")
     const [laporanKesehatan, setLaporanKesehatan] = useState<Array<any>>([])
+    const [serviceTambahan, setServiceTambahan] = useState<Array<any>>([])
 
     const [patientList, setPatientList] = useState<any>({})
     const [isLoading, setIsloading] = useState<boolean>(true)
@@ -91,27 +92,28 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
             .collection('patient')
             .doc(route?.params?.id)
             .onSnapshot((data) => {
-                console.log('pasien details = ', data.data()?.laporan_kesehatan);
+
                 setPatientList(data.data())
 
-                var _laporanKesehatan: Array<any> = data.data()?.laporan_kesehatan
+                if (data.data()?.laporan_kesehatan.length > 0) {
+                    var _laporanKesehatan: Array<any> = data.data()?.laporan_kesehatan
 
-                console.log(_laporanKesehatan[_laporanKesehatan.length - 1]?.id);
+                    setServiceTambahan(data.data()?.tambahan_service)
 
+                    if (_laporanKesehatan[_laporanKesehatan.length - 1].status == 'selesai') {
+                        setLaporanKesehatan(data.data()?.laporan_kesehatan)
 
-                if (_laporanKesehatan[_laporanKesehatan.length - 1].status == 'selesai') {
-                    setLaporanKesehatan(data.data()?.laporan_kesehatan)
+                        setKeluhan('')
+                        setTanggapan('')
+                        setStatusKesehatan('')
+                    } else {
+                        setLaporanKesehatan(data.data()?.laporan_kesehatan)
 
-                    setKeluhan('')
-                    setTanggapan('')
-                    setStatusKesehatan('')
-                } else {
-                    setLaporanKesehatan(data.data()?.laporan_kesehatan)
-
-                    setIdKesehatan(_laporanKesehatan[_laporanKesehatan.length - 1]?.id ?? '')
-                    setKeluhan(_laporanKesehatan[_laporanKesehatan.length - 1]?.keluhan ?? '')
-                    setTanggapan(_laporanKesehatan[_laporanKesehatan.length - 1]?.tanggapan ?? '')
-                    setStatusKesehatan(_laporanKesehatan[_laporanKesehatan.length - 1]?.status ?? '')
+                        setIdKesehatan(_laporanKesehatan[_laporanKesehatan.length - 1]?.id ?? '')
+                        setKeluhan(_laporanKesehatan[_laporanKesehatan.length - 1]?.keluhan ?? '')
+                        setTanggapan(_laporanKesehatan[_laporanKesehatan.length - 1]?.tanggapan ?? '')
+                        setStatusKesehatan(_laporanKesehatan[_laporanKesehatan.length - 1]?.status ?? '')
+                    }
                 }
 
                 setIsloading(false)
@@ -158,42 +160,49 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
                 laporanKesehatan.map((val, i) => {
 
-                    var epoch = val.id * 1000;
-
                     _laporanKesehatan.push({
                         No: i + 1,
-                        Keluhan: val.keluhan,
-                        Tanggapan: val.tanggapan,
+                        Complaint: val.keluhan,
+                        Respone: val.tanggapan,
                         Status: val.status,
-                        Time: new Date(epoch).toLocaleString('en-GB'),
+                        Time: new Date(val.id).toLocaleString('en-GB'),
                     });
                 })
 
-                console.log('laporan = ', _laporanKesehatan);
+                var _serviceTambahan: Array<any> = [];
 
+                serviceTambahan.map((val, i) => {
+
+                    _serviceTambahan.push({
+                        No: i + 1,
+                        Services: val.service,
+                        Time: new Date(val.id).toLocaleString('en-GB'),
+                    });
+                })
 
                 let patinet_data_to_export: Array<object> = [{
                     No: 1,
                     ID: patientList?.id,
-                    Nama: patientList?.name,
-                    Umur: patientList?.age,
-                    Alamat: patientList?.address,
-                    Pekerjaan: patientList?.job,
-                    Keluhan: patientList?.keluhan,
-                    Diagnosa: patientList?.diagnosa,
-                    "Data Tambahan": data_tambahan
+                    Name: patientList?.name,
+                    Age: patientList?.age,
+                    Address: patientList?.address,
+                    Job: patientList?.job,
+                    Complaint: patientList?.keluhan,
+                    Diagnosis: patientList?.diagnosa,
+                    "Additional Data": data_tambahan
                 }]
 
                 // console.log(patinet_data_to_export);
 
-
                 var wb = XLSX.utils.book_new();
                 var sheet1 = XLSX.utils.json_to_sheet(patinet_data_to_export);
                 var sheet2 = XLSX.utils.json_to_sheet(_laporanKesehatan);
-                var sheet3 = XLSX.utils.json_to_sheet(dataArray);
-                XLSX.utils.book_append_sheet(wb, sheet1, 'Data Pasien', true);
-                XLSX.utils.book_append_sheet(wb, sheet2, 'Laporan Kesehatan', true);
-                XLSX.utils.book_append_sheet(wb, sheet3, 'Data Sensor', true);
+                var sheet3 = XLSX.utils.json_to_sheet(_serviceTambahan);
+                var sheet4 = XLSX.utils.json_to_sheet(dataArray);
+                XLSX.utils.book_append_sheet(wb, sheet1, 'Patient Data', true);
+                XLSX.utils.book_append_sheet(wb, sheet2, 'Health Report', true);
+                XLSX.utils.book_append_sheet(wb, sheet3, 'Additional Service', true);
+                XLSX.utils.book_append_sheet(wb, sheet4, 'Sensor Data', true);
 
                 const wbout = XLSX.write(wb, {
                     type: 'binary',
@@ -272,7 +281,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                     });
                 console.log('2');
             } else if (state.role == 'nurse' && tanggapan != '' && statusKesehatan == 'progress') {
-                AndroidToast.toast("Pilih selesai menanggapi")
+                AndroidToast.toast("Select done responding")
 
                 console.log('3');
             }
@@ -365,7 +374,6 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                                             variant="solid"
                                         />
 
-
                                     </>) :
                                     (
                                         <>
@@ -380,6 +388,9 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                                                 panggilan={patientList?.name}
                                                 id={patientList?.id}
                                                 uri={patientList?.uri}
+                                                onPressEdit={() => {
+                                                    navigation.navigate("AdditionalService", { id: patientList?.id, })
+                                                }}
                                             />
 
                                             <Box mb={38} />
@@ -388,7 +399,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                                                 (
                                                     <>
                                                         <HStack justifyContent={"space-between"} >
-                                                            <Text fontSize={20} color='#515A50' fontWeight={'bold'} >Data Sensor</Text>
+                                                            <Text fontSize={20} color='#515A50' fontWeight={'bold'} >Sensor Data</Text>
                                                             <Icon
                                                                 as={MaterialCommunityIcons}
                                                                 name={patientList?.sensor_id == '' ? 'plus-circle-outline' : 'minus-circle-outline'}
@@ -561,12 +572,12 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
                                             {/* text input */}
 
-                                            <Text fontSize={20} color='#515A50' fontWeight={'bold'} >Keluhan Pasien</Text>
+                                            <Text fontSize={20} color='#515A50' fontWeight={'bold'} >Patient Complaint</Text>
 
                                             <Box mt={-15} />
 
                                             <TextInput
-                                                placeholder="keluhan"
+                                                placeholder="complaint"
                                                 type="text"
                                                 value={keluhan}
                                                 h={74}
@@ -577,7 +588,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
 
                                             <Box mb={19} />
 
-                                            <Text fontSize={20} color='#515A50' fontWeight={'bold'} >Tanggapan</Text>
+                                            <Text fontSize={20} color='#515A50' fontWeight={'bold'} >Respone</Text>
 
                                             <Box mt={11} />
 
@@ -597,12 +608,12 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                                                         p={3}
                                                         width={290}
                                                         height={290}
-                                                        placeholder={'tanggapan'}
+                                                        placeholder={'respone'}
                                                         value={tanggapan}
                                                         onChangeText={(val) => {
 
                                                             if (state.role == 'doctor' && keluhan == '') {
-                                                                AndroidToast.toast('Belum ada keluhan!')
+                                                                AndroidToast.toast('No complaints yet!')
                                                             } else if (state.role == 'doctor' && keluhan != '') {
                                                                 setTanggapan(val)
                                                             }
@@ -628,7 +639,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                                                                             </Radio>
                                                                             <Box ml={10} />
                                                                             <Radio colorScheme="emerald" value="selesai" my={1}>
-                                                                                Selesai
+                                                                                Done
                                                                             </Radio>
                                                                         </HStack>
                                                                     </Radio.Group>
@@ -645,7 +656,7 @@ const PatientDetailScreen = ({ navigation, route }: Nav) => {
                                                 onPress={() => {
                                                     commentHandle()
                                                 }}
-                                                name="Kirim"
+                                                name="Send"
                                                 bgcolor={PRIMARY_COLOR}
                                                 txtcolor={WHITE_COLOR}
                                                 variant="solid"

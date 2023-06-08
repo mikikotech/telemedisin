@@ -1,6 +1,5 @@
 import { NativeStackScreenProps, createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useContext, useEffect } from 'react';
-import DoctorHomeScreen from '../screens/doctorHomeScreen';
 import PatientDetailScreen from '../screens/patientDetailScreen';
 import PatientAdditionalDataScreen from '../screens/patientAdditionalDataScreen';
 import DataSendScreen from '../screens/dataSendScreen';
@@ -10,22 +9,32 @@ import { FONT_INACTIVE, PRIMARY_COLOR, WHITE_COLOR } from '../utils/constant';
 import AuthContext from './authContext';
 import AnimatedTrantitions from '../screens/animatedTrantitions';
 import auth from '@react-native-firebase/auth';
+import AddPatientAdditionalDataScreen from '../screens/addPatientAddtionalDataScreen';
+import QrCodeScannerScreen from '../screens/qrCodeScannerScreen';
+import EditPatientAdditionalDataScreen from '../screens/editPatientAddtionalDataScreen';
 import ChartTopTabNavigator from './chartTopTabNavigator';
+import PatientHomeScreen from '../screens/patientHomeScreen';
+import CreatePatientScreen from '../screens/createPatientScreen';
+import EditPatientDetailScreen from '../screens/editPatientDetailScreen';
 
-export type DoctorHomeStackParams = {
+export type PatientHomeStackParams = {
     Home: any;
+    CreatePatient: any;
     PatientDetail: any;
+    EditPatientDetail: any;
     PatientAddionalDetail: any;
-    DataSend: any;
-    Chart: any;
+    EditPatientAddionalDetail: any;
+    AddPatientData: any;
     Trantitions: any;
+    DataSend: any;
+    QRCode: any;
+    Chart: any;
 };
-
 type Nav = NativeStackScreenProps<any>;
 
-const Stack = createNativeStackNavigator<DoctorHomeStackParams>();
+const Stack = createNativeStackNavigator<PatientHomeStackParams>();
 
-const DoctorHomeStackNavigator = ({ route }: Nav) => {
+const PatientHomeStackNavigator = ({ route }: Nav) => {
 
     const { SignOut } = useContext(AuthContext);
 
@@ -34,15 +43,6 @@ const DoctorHomeStackNavigator = ({ route }: Nav) => {
             headerStyle: { backgroundColor: WHITE_COLOR },
             headerTransparent: true,
             headerTitleAlign: 'center',
-            headerLeft: () => (
-                <Icon
-                    as={MaterialCommunityIcons}
-                    name={'chevron-left'}
-                    size={8}
-                    color={PRIMARY_COLOR}
-                    onPress={() => { navigation.goBack() }}
-                />
-            ),
             headerRight: () => (
                 <Menu trigger={triggerProps => {
                     return <Pressable accessibilityLabel="More options menu" {...triggerProps}>
@@ -59,6 +59,7 @@ const DoctorHomeStackNavigator = ({ route }: Nav) => {
                             await auth()
                                 .signOut()
                                 .then(() => SignOut());
+
                         }}>
                             <HStack alignItems={'center'} >
                                 <Icon
@@ -68,7 +69,7 @@ const DoctorHomeStackNavigator = ({ route }: Nav) => {
                                     color={PRIMARY_COLOR}
 
                                 />
-                                <Text ml={2}>Logout</Text>
+                                <Text ml={2} >Logout</Text>
                             </HStack>
                         </Pressable>
                     </Menu.Item>
@@ -88,8 +89,14 @@ const DoctorHomeStackNavigator = ({ route }: Nav) => {
                 </Menu>
             ),
         })} >
-            <Stack.Screen name='Home' component={DoctorHomeScreen} options={(navigation) => ({
-                title: 'Patient List',
+            <Stack.Screen name='Home' component={PatientHomeScreen} options={(navigation) => ({
+                title: 'Patient Detail',
+                headerLeft: () => (
+                    <></>
+                ),
+            })} />
+            <Stack.Screen name='CreatePatient' component={CreatePatientScreen} options={(navigation) => ({
+                title: 'Create Patient',
                 headerLeft: () => (
                     <></>
                 ),
@@ -106,10 +113,77 @@ const DoctorHomeStackNavigator = ({ route }: Nav) => {
                     />
                 ),
             })} />
-            <Stack.Screen name='PatientAddionalDetail' component={PatientAdditionalDataScreen} options={(navigation) => ({
-                title: 'Patient Data',
+            <Stack.Screen name='EditPatientDetail' component={EditPatientDetailScreen} options={(navigation) => ({
+                title: 'Edit Profile',
+                headerLeft: () => (
+                    <Icon
+                        as={MaterialCommunityIcons}
+                        name={'chevron-left'}
+                        size={8}
+                        color={PRIMARY_COLOR}
+                        onPress={() => {
+                            navigation.navigation.navigate('Home', {
+                                id: navigation.route?.params?.id
+                            })
+                        }}
+                    />
+                ),
             })} />
+            <Stack.Screen name='PatientAddionalDetail' component={PatientAdditionalDataScreen} options={(navigation) => ({
+                title: 'Patient List',
+                headerLeft: () => (
+                    <Icon
+                        as={MaterialCommunityIcons}
+                        name={'chevron-left'}
+                        size={8}
+                        color={PRIMARY_COLOR}
+                        onPress={() => {
+                            navigation.navigation.navigate("Home", {
+                                id: navigation.route.params?.id
+                            })
+                        }}
+                    />
+                ),
+            })} />
+            <Stack.Screen name='EditPatientAddionalDetail' component={EditPatientAdditionalDataScreen} options={(navigation) => ({
+                title: 'Patient Data',
+                headerLeft: () => (
+                    <Icon
+                        as={MaterialCommunityIcons}
+                        name={'chevron-left'}
+                        size={8}
+                        color={PRIMARY_COLOR}
+                        onPress={() => {
+                            navigation.navigation.navigate("PatientAddionalDetail", {
+                                id: navigation.route.params?.id
+                            })
+                        }}
+                    />
+                ),
+            })} />
+            <Stack.Screen name='AddPatientData' component={AddPatientAdditionalDataScreen} options={(navigation) => ({
+                title: 'Patient Data',
+                headerLeft: () => (
+                    <Icon
+                        as={MaterialCommunityIcons}
+                        name={'chevron-left'}
+                        size={8}
+                        color={PRIMARY_COLOR}
+                        onPress={() => {
+                            navigation.navigation.navigate('PatientAddionalDetail', {
+                                id: navigation.route.params?.id
+                            })
+                        }}
+                    />
+                ),
+            })} />
+            {/* initialParams={{
+                initialRouteName: route?.params?.initialRouteName ?? 'HeartRate',
+            }} */}
             <Stack.Screen name='Chart' component={ChartTopTabNavigator} options={(navigation) => ({
+                headerShown: false
+            })} />
+            <Stack.Screen name='QRCode' component={QrCodeScannerScreen} options={(navigation) => ({
                 headerShown: false
             })} />
             <Stack.Screen name='Trantitions' component={AnimatedTrantitions} options={(navigation) => ({
@@ -122,6 +196,6 @@ const DoctorHomeStackNavigator = ({ route }: Nav) => {
     )
 }
 
-export default DoctorHomeStackNavigator
+export default PatientHomeStackNavigator
 
 

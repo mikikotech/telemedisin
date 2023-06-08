@@ -47,7 +47,7 @@ const PatientCard = ({ name, id, uri, onPress, onRemovePress }: Props) => {
                     </Avatar>
                     <VStack>
                         <Text fontSize={20} color='#515A50' maxW={130} numberOfLines={1} lineBreakMode="tail" fontWeight={'bold'} >{name}</Text>
-                        <Text fontSize={16} color='#6B6B6B' >patient {id}</Text>
+                        <Text fontSize={16} color='#6B6B6B' maxW={40} numberOfLines={1} >patient {id}</Text>
                     </VStack>
                     {
                         state.role == 'admin' ?

@@ -2,7 +2,6 @@ import { Avatar, Box, Button, Center, HStack, Icon, Image, Modal, Pressable, Scr
 import React, { useEffect, useState } from "react";
 import { PRIMARY_COLOR, PRIMARY_COLOR_DISABLE, PRIMARY_RED_COLOR, RED_COLOR, WHITE_COLOR } from "../utils/constant";
 import TextInput from "../components/textInput";
-import LoginButton from "../components/loginButton";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AdminHomeStackParams } from "../navigations/adminHomeStackNavigator";
 import firestore from '@react-native-firebase/firestore';
@@ -12,13 +11,16 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import uuid from 'react-native-uuid';
 import storage from '@react-native-firebase/storage';
-import PatientDetails from "../components/patientDetails";
+import { useSelector } from "react-redux";
+import { ReducerRootState } from "../redux/Reducer";
 
 type Nav = NativeStackScreenProps<AdminHomeStackParams>;
 
 const CreatePatientScreen = ({ navigation }: Nav) => {
 
-    const [id, setId] = useState<string>('')
+    const state = useSelector((state: ReducerRootState) => state.auth)
+
+    const [id, setId] = useState<string>(uuid.v4().toString())
     const [name, setName] = useState<string>('')
     const [age, setAge] = useState<string>('')
     const [address, setAddress] = useState<string>('')
@@ -108,6 +110,14 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
             const url = await storage().ref(`patient.photo/${fileName}`).getDownloadURL();
 
             if (onSnapshot.state == 'success') {
+
+                await firestore()
+                    .collection('Users')
+                    .doc(state.email)
+                    .update({
+                        id: id
+                    })
+
                 await firestore()
                     .collection('patient')
                     .doc(id)
@@ -122,12 +132,13 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
                         keluhan: keluhan,
                         diagnosa: diagnosa,
                         sensor_id: '',
-                        laporan_kesehatan: []
+                        laporan_kesehatan: [],
+                        tambahan_service: [],
                     })
                     .then(() => {
                         navigation.replace("Trantitions", {
                             type: 'acc',
-                            screen: 'PatientList'
+                            screen: 'Home'
                         })
 
                         setSubmit(false)
@@ -182,15 +193,18 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
 
                     <Box mt={2} />
 
-                    <TextInput
+                    {/* <TextInput
                         label="ID Number"
                         placeholder="id"
                         type="text"
                         value={id}
                         keyboardType="numeric"
-                        onChangeText={(val) => { setId(val) }}
+                        onChangeText={(val) => {
+                            state.role == 'admin' ?
+                                setId(val) : null
+                        }}
                         h={65}
-                    />
+                    /> */}
 
                     <TextInput
                         label="Name"
@@ -230,8 +244,8 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
                     />
 
                     <TextInput
-                        label='Keluhan'
-                        placeholder="keluhan"
+                        label='Complaint'
+                        placeholder="complaint"
                         type="text"
                         value={keluhan}
                         h={65}
@@ -239,8 +253,8 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
                     />
 
                     <TextInput
-                        label='Diagnosa'
-                        placeholder="diagnosa"
+                        label='Diagnosis'
+                        placeholder="diagnosis"
                         type="text"
                         value={diagnosa}
                         h={65}
@@ -364,7 +378,7 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
                                             numberOfLines={2}
                                             lineBreakMode="tail"
                                         >
-                                            Nama Lengkap : {' '}
+                                            Full Name : {' '}
                                             <Text
                                                 color='#515A50'
                                                 fontSize={17}
@@ -383,12 +397,12 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
                                             numberOfLines={1}
                                             lineBreakMode="tail"
                                         >
-                                            Umur : {' '}
+                                            Age : {' '}
                                             <Text
                                                 color='#515A50'
                                                 fontSize={17}
                                             >
-                                                {age} Tahun
+                                                {age} Years
                                             </Text>
                                         </Text>
                                     </>
@@ -402,7 +416,7 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
                                             numberOfLines={2}
                                             lineBreakMode="tail"
                                         >
-                                            Alamat : {' '}
+                                            Address : {' '}
                                             <Text
                                                 color='#515A50'
                                                 fontSize={17}
@@ -421,7 +435,7 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
                                             numberOfLines={1}
                                             lineBreakMode="tail"
                                         >
-                                            Pekerjaan : {' '}
+                                            Job : {' '}
                                             <Text
                                                 color='#515A50'
                                                 fontSize={17}
@@ -440,7 +454,7 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
                                             numberOfLines={1}
                                             lineBreakMode="tail"
                                         >
-                                            Keluhan : {' '}
+                                            Complaint : {' '}
                                             <Text
                                                 color='#515A50'
                                                 fontSize={17}
@@ -459,7 +473,7 @@ const CreatePatientScreen = ({ navigation }: Nav) => {
                                             numberOfLines={1}
                                             lineBreakMode="tail"
                                         >
-                                            Diagnosa : {' '}
+                                            Diagnosis : {' '}
                                             <Text
                                                 color='#515A50'
                                                 fontSize={17}

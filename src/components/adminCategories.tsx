@@ -4,7 +4,7 @@ import { WHITE_COLOR } from "../utils/constant";
 import { ColorType } from "native-base/lib/typescript/components/types";
 
 interface Props {
-    categories: 'Create Doctor' | 'Create Nurse' | 'Data Pasien',
+    categories: 'Create Doctor' | 'Create Nurse' | 'Patient List',
     bg: ColorType,
     icon: JSX.Element
 }

@@ -83,7 +83,7 @@ const AdminHomeScreen = ({ navigation }: Nav) => {
                     <Pressable onPress={() => { navigation.navigate("PatientList") }}>
                         <AdminCategories
                             bg={PURPLE_COLOR}
-                            categories="Data Pasien"
+                            categories="Patient List"
                             icon={<Image source={require('./../assets/icons/data.png')} w={25} h={30} alt='patient' />}
                         />
                     </Pressable>

@@ -3,10 +3,27 @@ import React, { useEffect, useRef } from "react";
 import { PRIMARY_COLOR, RED_COLOR, WHITE_COLOR } from "../utils/constant";
 import LoginButton from "../components/loginButton";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useSelector } from "react-redux";
+import { ReducerRootState } from "../redux/Reducer";
+import { BackHandler } from "react-native";
 
 type Nav = NativeStackScreenProps<any>;
 
 const DataSendScreen = ({ navigation, route }: Nav) => {
+
+    const state = useSelector((state: ReducerRootState) => state.auth)
+
+    useEffect(() => {
+        const backHandle = BackHandler.addEventListener(
+            'hardwareBackPress',
+            () => {
+                //
+                return true
+            }
+        )
+
+        return () => backHandle.remove()
+    }, [])
 
     return (
         <Box
@@ -29,14 +46,14 @@ const DataSendScreen = ({ navigation, route }: Nav) => {
                 >
                     {
                         route.params?.type == 'acc' ?
-                            'Akun Berhasil Dibuat !' : route.params?.type == 'adddata' ?
-                                'Data Berhasil Ditambahkan !' : 'Data Berhasil Diperbaharui !'
+                            'Account has been created successfully !' : route.params?.type == 'adddata' ?
+                                'Data added successfully !' : 'Data updated successfully !'
                     }
                 </Text>
                 {/* </Box> */}
                 <Box mt={25} />
                 <LoginButton
-                    name="Kembali"
+                    name="Back"
                     variant="solid"
                     txtcolor={WHITE_COLOR}
                     bgcolor={PRIMARY_COLOR}

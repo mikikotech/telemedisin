@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Center, HStack, Pressable, ScrollView, Text, VStack } from "native-base";
+import { Avatar, Box, Button, Center, CheckIcon, HStack, Pressable, ScrollView, Select, Text, VStack } from "native-base";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { PRIMARY_COLOR, WHITE_COLOR } from "../utils/constant";
 import TextInput from "../components/textInput";
@@ -10,9 +10,9 @@ import AndroidToast from "../utils/AndroidToast";
 
 type Nav = NativeStackScreenProps<any>;
 
-const AddPatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
+const AddAdditionalServiceScreen = ({ navigation, route }: Nav) => {
 
-    const [data, setData] = useState<string>('')
+    const [service, setService] = useState<string>("");
     const [value, setValue] = useState<string>('')
     const [name, setName] = useState<string>('')
     const [uri, setUri] = useState<string>('https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png')
@@ -21,7 +21,9 @@ const AddPatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
         const backHandle = BackHandler.addEventListener(
             'hardwareBackPress',
             () => {
-                navigation.navigate('PatientAddionalDetail')
+                navigation.navigate('AdditionalService', {
+                    id: route.params?.id
+                })
                 return true
             }
         )
@@ -44,20 +46,19 @@ const AddPatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
 
     const saveDataHandle = () => {
 
-        if (data != '' && value != '') {
+        if (service != '' || value != '') {
             firestore()
                 .collection('patient')
                 .doc(route.params?.id)
                 .update({
-                    data_tambahan: firestore.FieldValue.arrayUnion({
+                    tambahan_service: firestore.FieldValue.arrayUnion({
                         id: new Date().getTime(),
-                        data: data,
-                        value: value
+                        service: service != '' ? service : value,
                     })
                 }).then(() => {
                     navigation.replace("Trantitions", {
                         type: 'adddata',
-                        screen: 'PatientAddionalDetail',
+                        screen: 'AdditionalService',
                         id: route.params?.id
                     })
                 })
@@ -88,16 +89,30 @@ const AddPatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
             <Center mt={29} >
 
                 <Box>
-                    <Text fontSize={20} color='#515A50' fontWeight={'bold'} mb={23} >Input Data</Text>
-                    <View key={1} >
-                        <TextInput h={65} label={'Data'} value={data} onChangeText={(val) => {
-                            setData(val)
-                        }} placeholder="data" type="text" />
-                        <Box mb={2} />
-                        <TextInput h={122} label='Description' value={value} onChangeText={(val) => {
-                            setValue(val)
-                        }} placeholder="description" type="text" />
-                    </View>
+                    <Text fontSize={20} color='#515A50' fontWeight={'bold'} mb={23} >Choose Services</Text>
+
+                    <Text color='#515A50' ml={1} fontWeight={"bold"} fontSize={20}>Services</Text>
+
+                    <Box>
+                        <Select selectedValue={service} minWidth="200" accessibilityLabel="Choose Service" placeholder="Choose Service" _selectedItem={{
+                            bg: "teal.600",
+                            endIcon: <CheckIcon size="5" />
+                        }} mt={1} onValueChange={itemValue => {
+                            setValue('')
+                            setService(itemValue)
+                        }}>
+                            <Select.Item label="Oxytocin Massage" value="Oxytocin Massage" />
+                            <Select.Item label="Wound Care" value="Wound Care" />
+                            <Select.Item label="Vitamin Injections" value="Vitamin Injections" />
+                            <Select.Item label="Minor Surgery" value="Minor Surgery" />
+                            <Select.Item label="Installation of Breathing Tubes" value="Installation of Breathing Tubes" />
+                        </Select>
+                    </Box>
+                    <Box mb={2} />
+                    <TextInput h={122} label='Others' value={value} onChangeText={(val) => {
+                        setValue(val)
+                        setService('')
+                    }} placeholder="others" type="text" />
                     <Box mt={65} />
                     <LoginButton bgcolor={WHITE_COLOR} name="Save" onPress={() => {
                         saveDataHandle()
@@ -111,4 +126,4 @@ const AddPatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
     )
 }
 
-export default AddPatientAdditionalDataScreen
+export default AddAdditionalServiceScreen

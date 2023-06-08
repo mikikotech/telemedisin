@@ -19,12 +19,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from "@react-native-community/netinfo";
 import PushNotification, { Importance } from "react-native-push-notification";
 import NoInternetConnectionScreen from "../screens/noInternetConnectionScreen";
+import PatientHomeStackNavigator from "./patientHomeStackNavigator";
 
 export type RouteNavigationParams = {
     Auth: any;
     DoctorHome: any;
     NurseHome: any;
     AdminHome: any;
+    PatientHome: any;
     NoInternet: any;
 }
 
@@ -211,7 +213,9 @@ const RouteNavigation = () => {
                                     (<Stack.Screen name="NurseHome" component={NurseHomeStackNavigator} />) :
                                     state.auth.role == 'admin' && isConnected == true ?
                                         (<Stack.Screen name="AdminHome" component={AdminHomeStackNavigator} />) :
-                                        (<Stack.Screen name="NoInternet" component={NoInternetConnectionScreen} />)
+                                        state.auth.role == 'patient' && isConnected == true ?
+                                            (<Stack.Screen name="PatientHome" component={PatientHomeStackNavigator} />) :
+                                            (<Stack.Screen name="NoInternet" component={NoInternetConnectionScreen} />)
                         }
 
                     </Stack.Navigator>

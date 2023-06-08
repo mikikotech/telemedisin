@@ -1,5 +1,5 @@
 import { Avatar, Box, Center, Fab, HStack, Icon, ScrollView, Text, VStack } from "native-base";
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PRIMARY_COLOR, WHITE_COLOR } from "../utils/constant";
 import PatientAdditionalData from "../components/patientAdditionalData";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -8,23 +8,25 @@ import { useSelector } from "react-redux";
 import { ReducerRootState } from "../redux/Reducer";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { BackHandler } from "react-native";
+import AdditionalService from "../components/additionalService";
 
-type Nav = NativeStackScreenProps<any>
+type Nav = NativeStackScreenProps<any>;
 
-const PatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
+const AdditionalServiceScreen = ({ navigation, route }: Nav) => {
 
     const state = useSelector((state: ReducerRootState) => state.auth)
 
-    const [data, setData] = useState<Array<any>>([])
     const [id, setId] = useState<string>('')
     const [name, setName] = useState<string>('')
     const [uri, setUri] = useState<string>('https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png')
+
+    const [services, setServices] = useState<Array<any>>([])
 
     useEffect(() => {
         const backHandle = BackHandler.addEventListener(
             'hardwareBackPress',
             () => {
-                state.role == 'patient' ? navigation.navigate('Home') : navigation.navigate('PatientDetail')
+                navigation.navigate('PatientDetail')
                 return true
             }
         )
@@ -32,40 +34,17 @@ const PatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
         return () => backHandle.remove()
     }, [])
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         const subscribe = firestore()
             .collection('patient')
-            .doc(route.params?.id)
+            .doc(route?.params?.id)
             .onSnapshot((data) => {
-                setData(data.data()?.data_tambahan)
+                setServices(data.data()?.tambahan_service)
                 setId(data.data()?.id)
                 setName(data.data()?.name)
                 setUri(data.data()?.uri)
             })
     }, [])
-
-    const editDataHandle = (dataId: string, data: string, value: string) => {
-
-        navigation.navigate('EditPatientAddionalDetail', {
-            id: route.params?.id,
-            dataId: dataId,
-            data: data,
-            value: value,
-        })
-    }
-
-    const deleteDataHandle = (dataId: string, data: string, value: string) => {
-        firestore()
-            .collection('patient')
-            .doc(route.params?.id)
-            .update({
-                data_tambahan: firestore.FieldValue.arrayRemove({
-                    id: dataId,
-                    data: data,
-                    value: value
-                })
-            }).catch(() => { })
-    }
 
     return (
         <Box
@@ -93,19 +72,13 @@ const PatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
                     showsVerticalScrollIndicator={false}
                 >
                     <Center >
-                        {data.map((val, i) => {
+                        {services.map((val, i) => {
                             return (
                                 <>
-                                    <PatientAdditionalData
+                                    <AdditionalService
                                         key={i + 1}
-                                        nama={val.data}
-                                        value={val.value}
-                                        onEditPress={() => {
-                                            editDataHandle(val.id, val.data, val.value)
-                                        }}
-                                        onRemovePress={() => {
-                                            deleteDataHandle(val.id, val.data, val.value)
-                                        }}
+                                        nama={`${i + 1}`}
+                                        value={val.service}
                                     />
 
                                     <Box mb={19} />
@@ -113,10 +86,11 @@ const PatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
                             )
                         })}
                     </Center>
+                    <Box mb={19} />
                 </ScrollView>
                 <Box mb={140} />
             </Center>
-            {state.role == 'nurse' || state.role == 'patient' ?
+            {state.role == 'nurse' ?
                 (
                     <Fab
                         renderInPortal={false}
@@ -130,7 +104,7 @@ const PatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
                         zIndex={1}
                         icon={<Icon color="white" as={MaterialCommunityIcons} name="plus" size={4} />}
                         onPress={() => {
-                            navigation.navigate("AddPatientData", {
+                            navigation.navigate("AddAdditionalService", {
                                 id: route.params?.id
                             })
                         }}
@@ -141,4 +115,4 @@ const PatientAdditionalDataScreen = ({ navigation, route }: Nav) => {
     )
 }
 
-export default PatientAdditionalDataScreen
+export default AdditionalServiceScreen

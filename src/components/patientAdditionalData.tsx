@@ -33,7 +33,7 @@ const PatientAdditionalData = ({ nama, value, onEditPress, onRemovePress }: Prop
                     <Text fontSize={14} color='#C6C6C6' mt={3}  >{value}</Text>
                 </VStack>
                 {
-                    state.role == 'nurse' ? (
+                    state.role == 'nurse' || state.role == 'patient' ? (
                         <Box flexDir={"row"} >
                             <Pressable justifyContent={'center'} alignItems={'center'} mr={2} onPress={onEditPress} h={26} w={26} bg={PRIMARY_COLOR_DISABLE} borderRadius={5} >
                                 <Image alt="iamge" source={require('./../assets/icons/edit.png')} w={4} h={4} />

@@ -6,18 +6,26 @@ import { BackHandler, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import AndroidToast from '../utils/AndroidToast';
 import firestore from '@react-native-firebase/firestore';
+import { useSelector } from 'react-redux';
+import { ReducerRootState } from '../redux/Reducer';
 
 type Nav = NativeStackScreenProps<any>;
 
 const QrCodeScannerScreen = ({ navigation, route }: Nav) => {
 
+    const state = useSelector((state: ReducerRootState) => state.auth)
+
     useEffect(() => {
         const backHandle = BackHandler.addEventListener(
             'hardwareBackPress',
             () => {
-                navigation.navigate('PatientDetail', {
-                    id: route.params?.id
-                })
+                if (state.role == 'nurse') {
+                    navigation.navigate('PatientDetail', {
+                        id: route.params?.id
+                    })
+                } else {
+                    navigation.navigate('Home')
+                }
                 return true
             }
         )

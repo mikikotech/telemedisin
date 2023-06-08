@@ -14,10 +14,14 @@ import AddPatientAdditionalDataScreen from '../screens/addPatientAddtionalDataSc
 import QrCodeScannerScreen from '../screens/qrCodeScannerScreen';
 import EditPatientAdditionalDataScreen from '../screens/editPatientAddtionalDataScreen';
 import ChartTopTabNavigator from './chartTopTabNavigator';
+import AdditionalServiceScreen from '../screens/additionalServiceScreen';
+import AddAdditionalServiceScreen from '../screens/addAdditionalServiceScreen';
 
 export type NurseHomeStackParams = {
     Home: any;
     PatientDetail: any;
+    AdditionalService: any;
+    AddAdditionalService: any;
     PatientAddionalDetail: any;
     EditPatientAddionalDetail: any;
     AddPatientData: any;
@@ -86,13 +90,13 @@ const NurseHomeStackNavigator = ({ route }: Nav) => {
             ),
         })} >
             <Stack.Screen name='Home' component={NurseHomeScreen} options={(navigation) => ({
-                title: 'Daftar Pasien',
+                title: 'Patient List',
                 headerLeft: () => (
                     <></>
                 ),
             })} />
             <Stack.Screen name='PatientDetail' component={PatientDetailScreen} options={(navigation) => ({
-                title: 'Kondisi Pasien',
+                title: 'Patient Condition',
                 headerLeft: () => (
                     <Icon
                         as={MaterialCommunityIcons}
@@ -103,8 +107,36 @@ const NurseHomeStackNavigator = ({ route }: Nav) => {
                     />
                 ),
             })} />
+            <Stack.Screen name='AdditionalService' component={AdditionalServiceScreen} options={(navigation) => ({
+                title: 'Additional Service',
+                headerLeft: () => (
+                    <Icon
+                        as={MaterialCommunityIcons}
+                        name={'chevron-left'}
+                        size={8}
+                        color={PRIMARY_COLOR}
+                        onPress={() => { navigation.navigation.navigate('PatientDetail') }}
+                    />
+                ),
+            })} />
+            <Stack.Screen name='AddAdditionalService' component={AddAdditionalServiceScreen} options={(navigation) => ({
+                title: 'Additional Service',
+                headerLeft: () => (
+                    <Icon
+                        as={MaterialCommunityIcons}
+                        name={'chevron-left'}
+                        size={8}
+                        color={PRIMARY_COLOR}
+                        onPress={() => {
+                            navigation.navigation.navigate('AdditionalService', {
+                                id: navigation.route.params?.id
+                            })
+                        }}
+                    />
+                ),
+            })} />
             <Stack.Screen name='PatientAddionalDetail' component={PatientAdditionalDataScreen} options={(navigation) => ({
-                title: 'Data Pasien',
+                title: 'Patient Data',
                 headerLeft: () => (
                     <Icon
                         as={MaterialCommunityIcons}
@@ -120,7 +152,7 @@ const NurseHomeStackNavigator = ({ route }: Nav) => {
                 ),
             })} />
             <Stack.Screen name='EditPatientAddionalDetail' component={EditPatientAdditionalDataScreen} options={(navigation) => ({
-                title: 'Data Pasien',
+                title: 'Patient Data',
                 headerLeft: () => (
                     <Icon
                         as={MaterialCommunityIcons}
@@ -136,7 +168,7 @@ const NurseHomeStackNavigator = ({ route }: Nav) => {
                 ),
             })} />
             <Stack.Screen name='AddPatientData' component={AddPatientAdditionalDataScreen} options={(navigation) => ({
-                title: 'Data Pasien',
+                title: 'Patient Data',
                 headerLeft: () => (
                     <Icon
                         as={MaterialCommunityIcons}
