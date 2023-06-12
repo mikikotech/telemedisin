@@ -10,6 +10,7 @@ import { request, PERMISSIONS } from 'react-native-permissions';
 import { BackHandler } from "react-native";
 import AuthContext from "../navigations/authContext";
 import auth from '@react-native-firebase/auth';
+import axios from "axios";
 
 type Nav = NativeStackScreenProps<NurseHomeStackParams>;
 

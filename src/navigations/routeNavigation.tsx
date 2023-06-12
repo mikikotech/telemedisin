@@ -50,6 +50,9 @@ const RouteNavigation = () => {
 
                     createNotification(data)
 
+                    console.log('create fcm token !!!!!!!!!!!!!!!!!!!!');
+
+
                     dispatch({ type: ActionType.LOGIN, payload: data });
                 } catch (error) {
 
@@ -91,7 +94,7 @@ const RouteNavigation = () => {
             PushNotification.configure({
                 // (optional) Called when Token is generated (iOS and Android)
                 onRegister: function (token: any) {
-                    // console.log("TOKEN:", token);
+                    console.log("TOKEN:", token);
 
                     firestore()
                         .collection('fcmToken')
@@ -109,7 +112,7 @@ const RouteNavigation = () => {
                         /* Android Only Properties */
                         channelId: 'urgent', // (optional) set whether this is an "ongoing" notification
                         subtitle: notification.title,
-                        title: 'Mikiko App', // (optional)
+                        title: 'Urgent Notification', // (optional)
                         message: notification.message,
                         smallIcon: 'ic_launcher',
                         largeIcon: 'ic_launcher',
